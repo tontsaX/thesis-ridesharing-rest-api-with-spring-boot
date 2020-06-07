@@ -21,7 +21,7 @@ public class AppController {
 	
 	@GetMapping("/rides")
 	public List<Ride> getRides() {
-		return null;
+		return rideDao.findAll();
 	}
 	
 	@DeleteMapping("/rides/{id}")

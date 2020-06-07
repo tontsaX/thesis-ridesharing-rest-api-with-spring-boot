@@ -13,5 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class Ride extends AbstractPersistable<Long> {
-
+	
+	private String startCity, stopCity;
+	private Double price;
+	
 }
