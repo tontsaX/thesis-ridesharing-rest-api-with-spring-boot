@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import tontsax.kimppakyyti.dao.RideDao;
@@ -24,13 +25,19 @@ public class AppController {
 		return rideDao.findAll();
 	}
 	
-	@DeleteMapping("/rides/{id}")
-	public Ride deleteRide(@PathVariable Long id) {
-		return null; // esimerkissä poistaa ja palauttaa poistetun olion
+	@GetMapping("/rides/{id}")
+	public Ride getRide(@PathVariable Long id) {
+		return rideDao.getOne(id);
 	}
 	
 	@PostMapping("/rides")
 	public Ride postRide(@RequestBody Ride ride) {
-		return null; // esimerkissä tallentaa ja palauttaa tallennetun olion
+		return null;
 	}
+	
+	@DeleteMapping("/rides/{id}")
+	public Ride deleteRide(@PathVariable Long id) {
+		return null;
+	}
+	
 }
