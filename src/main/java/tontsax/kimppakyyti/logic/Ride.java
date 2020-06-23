@@ -19,5 +19,4 @@ public class Ride extends AbstractPersistable<Long> {
 	
 	private String origin, destination;
 	private Double price;
-	
 }
