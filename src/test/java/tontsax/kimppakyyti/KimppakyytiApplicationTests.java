@@ -2,6 +2,7 @@ package tontsax.kimppakyyti;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,30 +58,55 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	@Test
-	public void responseContainsListOfAllRides() throws Exception {
+	public void getListOfAllRides() throws Exception {
 		performRequestAndExpectJson(get("/rides"))
 			.andExpect(jsonPath("$.length()", is(2)));
 	}
 	
 	@Test
-	public void findRideById() throws Exception {
-		getCheckRide((long) 1, "Turku", "Helsinki");
-		getCheckRide((long) 2, "Turku", "Tampere");
+	public void getRidesByOrigin() throws Exception {
+		performRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
+		.andExpect(jsonPath("$.length()", is(2)));
 	}
 	
-	private void getCheckRide(Long id, String origin, String destination) throws Exception {
+	@Test
+	public void getRidesByDestination() throws Exception {
 		
+	}
+	
+	@Test
+	public void findRideById() throws Exception {
+		getRideById((long) 1, "Turku", "Helsinki");
+		getRideById((long) 2, "Turku", "Tampere");
+	}
+	
+	private void getRideById(Long id, String origin, String destination) throws Exception {
 		performRequestAndExpectJson(get("/rides/{id}", id))
 			.andExpect(jsonPath("$.id").value(id.toString()))	
 			.andExpect(jsonPath("$.origin").value(origin))
 			.andExpect(jsonPath("$.destination").value(destination));
+	}
+	
+	@Test
+	public void registerToApp() throws Exception {
 		
-		/* jsonPath(olioviite, is(vertausarvo)) vertaa vertausarvoa olioviitteeseen juuri sellaisena kuin vertausarvo on,
-		 * paitsi numeroiden kohdalla, jolloin long 1 tai 1L eivät ole sama, kuin olioviitearvo 1.
-		 * olioviitearvo int 1 ei ole long 1L tai string "1", mutta value()-matcherin avulla olioviitearvoa ja vertausarvoa
-		 * voidaan verrata stringeinä. 
-		 * olioviitearvo int 1 onkin string "1" ja vertausarvo 1L on string "1" 
-		 * */
+	}
+	
+	@Test
+	public void loginToAccount() throws Exception {
+		
+	}
+	
+	@Test
+	public void postRide() throws Exception {
+		
+	}
+	
+	@Test
+	public void deleteRideById() throws Exception {
+		Long id = 3L;
+		performRequestAndExpectJson(delete("/rides/{id}", id))
+			.andExpect(jsonPath("$.id").value(id.toString()));
 	}
 	
 	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
