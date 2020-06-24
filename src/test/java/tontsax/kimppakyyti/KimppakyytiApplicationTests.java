@@ -1,28 +1,24 @@
 package tontsax.kimppakyyti;
 
 import static org.hamcrest.CoreMatchers.is;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.http.MediaType;
-
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import tontsax.kimppakyyti.dao.RideDao;
 import tontsax.kimppakyyti.logic.Ride;
@@ -62,10 +58,8 @@ public class KimppakyytiApplicationTests {
 	
 	@Test
 	public void responseContainsListOfAllRides() throws Exception {
-		mockMvc.perform(get("/rides"))
-				.andDo(print())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.length()", is(2)));
+		performRequestAndExpectJson(get("/rides"))
+			.andExpect(jsonPath("$.length()", is(2)));
 	}
 	
 	@Test
@@ -75,12 +69,11 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	private void getCheckRide(Long id, String origin, String destination) throws Exception {
-		mockMvc.perform(get("/rides/{id}", id))
-				.andDo(print())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.id").value(id.toString()))	
-				.andExpect(jsonPath("$.origin").value(origin))
-				.andExpect(jsonPath("$.destination").value(destination));
+		
+		performRequestAndExpectJson(get("/rides/{id}", id))
+			.andExpect(jsonPath("$.id").value(id.toString()))	
+			.andExpect(jsonPath("$.origin").value(origin))
+			.andExpect(jsonPath("$.destination").value(destination));
 		
 		/* jsonPath(olioviite, is(vertausarvo)) vertaa vertausarvoa olioviitteeseen juuri sellaisena kuin vertausarvo on,
 		 * paitsi numeroiden kohdalla, jolloin long 1 tai 1L eivät ole sama, kuin olioviitearvo 1.
@@ -90,4 +83,9 @@ public class KimppakyytiApplicationTests {
 		 * */
 	}
 	
+	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
+		return mockMvc.perform(request)
+				.andDo(print())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+	}
 }
