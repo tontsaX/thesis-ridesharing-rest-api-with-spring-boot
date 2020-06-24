@@ -89,4 +89,5 @@ public class KimppakyytiApplicationTests {
 		 * olioviitearvo int 1 onkin string "1" ja vertausarvo 1L on string "1" 
 		 * */
 	}
+	
 }
