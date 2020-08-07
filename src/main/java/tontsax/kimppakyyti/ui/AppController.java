@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tontsax.kimppakyyti.dao.AccountDao;
 import tontsax.kimppakyyti.dao.RideDao;
+import tontsax.kimppakyyti.logic.Account;
 import tontsax.kimppakyyti.logic.Ride;
 
 @RestController
@@ -20,6 +22,9 @@ public class AppController {
 
 	@Autowired
 	private RideDao rideDao;
+	
+	@Autowired
+	private AccountDao accountDao;
 	
 	@GetMapping("/rides")
 	public List<Ride> getRides() {
@@ -42,14 +47,29 @@ public class AppController {
 	}
 	
 	@PostMapping("/rides")
+//	@PostMapping(path = "/rides", consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+//	@PostMapping(path = "/rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Ride postRide(@RequestBody Ride ride) {
-		return rideDao.save(ride);
+		Ride newRide = new Ride();
+		newRide.setDestination(ride.getDestination());
+		newRide.setOrigin(ride.getOrigin());
+		newRide.setPrice(ride.getPrice());
+		return rideDao.save(newRide);
 	}
 	
 	@DeleteMapping("/rides/{id}")
 	public Boolean deleteRide(@PathVariable Long id) {
 		rideDao.deleteById(id); 
 		return !rideDao.existsById(id);
+	}
+	
+	@PutMapping("/rides/{id}")
+	public Ride updateRide(@RequestBody Ride ride, @PathVariable Long id) {
+		Ride updatedRide = rideDao.findById(id).get();
+		updatedRide.setOrigin(ride.getOrigin());
+		updatedRide.setDestination(ride.getDestination());
+		updatedRide.setPrice(ride.getPrice());
+		return rideDao.save(updatedRide);
 	}
 	
 }

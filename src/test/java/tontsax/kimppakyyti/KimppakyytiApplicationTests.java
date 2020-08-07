@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,12 +28,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import tontsax.kimppakyyti.dao.AccountDao;
 import tontsax.kimppakyyti.dao.RideDao;
+import tontsax.kimppakyyti.logic.Account;
 import tontsax.kimppakyyti.logic.Ride;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@TestMethodOrder(OrderAnnotation.class) // makes the Order annotations work
+@TestMethodOrder(OrderAnnotation.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class KimppakyytiApplicationTests {
@@ -45,14 +48,31 @@ public class KimppakyytiApplicationTests {
 	@Autowired
 	private RideDao rideRepository;
 	
+	@Autowired
+	private AccountDao accountRepository;
+	
 	@BeforeEach
 	public void populateDatabase() {
 		if(!databasePopulated) {
+			Account account1 = new Account();
+			Account account2 = new Account();
+			
+			account1.setNickName("Decimus");
+			account2.setNickName("Tilemar");
+			
+			accountRepository.save(account1);
+			accountRepository.save(account2);
+			
 			Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
 			Ride ride2 = new Ride("Turku", "Tampere", 23.5);
+			
+//			ride1.setDriver(account1);
+//			ride2.setDriver(account2);
 				
-			rideRepository.save(ride1);
-			rideRepository.save(ride2);
+			System.out.println("Account 1 id: " + accountRepository.save(account1).getId());
+			System.out.println("Account 2 id: " + accountRepository.save(account2).getId());
+			System.out.println("Ride 1 id: " + rideRepository.save(ride1).getId());
+			System.out.println("Ride 2 id: " + rideRepository.save(ride2).getId());
 			
 			databasePopulated = true;
 		}
@@ -98,8 +118,8 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(5)
 	public void findRideById() throws Exception {
-		getRideById((long) 1, "Turku", "Helsinki");
-		getRideById((long) 2, "Turku", "Tampere");
+		getRideById((long) 3, "Turku", "Helsinki");
+		getRideById((long) 4, "Turku", "Tampere");
 	}
 	
 	private void getRideById(Long id, String origin, String destination) throws Exception {
@@ -113,8 +133,13 @@ public class KimppakyytiApplicationTests {
 	@Order(6)
 	public void postRide() throws Exception {
 		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
+//		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\", "
+//				+ "\"driver\":\"0\""
+//				+ "\"passangers:\"null\"\""
+//				+ "}";
 		performRequestAndExpectJson(post("/rides")
 			.contentType(MediaType.APPLICATION_JSON)
+//			.contentType("application/json")
 			.content(jsonRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"));
@@ -125,17 +150,32 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(7)
 	public void deleteRideById() throws Exception {
-		MvcResult request = performRequestAndExpectJson(delete("/rides/{id}", 2L)).andReturn();
+		MvcResult request = performRequestAndExpectJson(delete("/rides/{id}", 4L)).andReturn();
 		String content = request.getResponse().getContentAsString();
 		
 		Assert.assertTrue(content.equalsIgnoreCase("true"));
 		checkRidesListLength(2);
 	}
 	
+	@Test
+	@Order(8)
+	public void updateRide() throws Exception {
+		String jsonRide = "{\"origin\":\"Turku\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
+		performRequestAndExpectJson(put("/rides/{id}", 3L)
+				.contentType(MediaType.APPLICATION_JSON)
+//				.contentType("application/json")
+				.content(jsonRide))
+			.andExpect(jsonPath("$.id").value("3"))
+			.andExpect(jsonPath("$.origin").value("Turku"))
+			.andExpect(jsonPath("$.destination").value("Oulu"))
+			.andExpect(jsonPath("$.price").value("25.0"));
+	}
+	
 	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
 		return mockMvc.perform(request)
 				.andDo(print())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+//				.andExpect(content().contentType("application/json"));
 	}
 	
 	private void checkRidesListLength(int length) throws Exception {
