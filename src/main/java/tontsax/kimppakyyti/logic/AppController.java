@@ -1,4 +1,4 @@
-package tontsax.kimppakyyti.ui;
+package tontsax.kimppakyyti.logic;
 
 import java.util.List;
 
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tontsax.kimppakyyti.dao.AccountDao;
 import tontsax.kimppakyyti.dao.RideDao;
-import tontsax.kimppakyyti.logic.Account;
-import tontsax.kimppakyyti.logic.Ride;
 
 @RestController
 //@RequestMapping("/api") // lisää kaikkiin Mappingeihin alkuun osan /api
