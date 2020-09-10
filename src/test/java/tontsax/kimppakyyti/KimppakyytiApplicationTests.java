@@ -59,8 +59,6 @@ public class KimppakyytiApplicationTests {
 	@BeforeEach
 	public void populateDatabase() {
 		if(!databasePopulated) {
-//			Account account1 = new Account();
-//			Account account2 = new Account();
 			
 			account1 = new Account();
 			account2 = new Account();
@@ -74,7 +72,6 @@ public class KimppakyytiApplicationTests {
 			Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
 			Ride ride2 = new Ride("Turku", "Tampere", 23.5);
 			
-//			ride1.setDriver(account1);
 			ride1.setDriver(accountRepository.getOne(1L));
 			ride2.setDriver(account2);
 
@@ -139,7 +136,6 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(6)
 	public void postRide() throws Exception {
-		
 		Ride ride = new Ride("Tampere", "Oulu", 25.0);
 		
 		JSONObject jsonRideObject = new JSONObject();
@@ -150,10 +146,6 @@ public class KimppakyytiApplicationTests {
 		jsonRideObject.put("driverId", account1.getId());
 		
 		String postedRide = jsonRideObject.toString();
-		
-		System.out.println("---POST-------------");
-		System.out.println(jsonRideObject.toString(1));
-		System.out.println("----------------");
 
 		performRequestAndExpectJson(post("/rides")
 			.contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +169,6 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(8)
 	public void updateRide() throws Exception {
-//		String jsonRide = "{\"origin\":\"Turku\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
 		JSONObject jsonRideObject = new JSONObject();
 		
 		jsonRideObject.put("origin", "Turku");
@@ -197,8 +188,7 @@ public class KimppakyytiApplicationTests {
 	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
 		return mockMvc.perform(request)
 				.andDo(print())
-//				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
-				.andExpect(content().contentType("application/json"));
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
 	
 	private void checkRidesListLength(int length) throws Exception {
