@@ -27,11 +27,11 @@ public class Account extends AbstractPersistable<Long> {
 	private String nickName;
 	private int rankingFive;
 	
-//	@ManyToMany
-//	@JsonBackReference
-//	private List<Ride> reservedRides = new ArrayList<>();
-//	
-//	@OneToMany(mappedBy = "driver")
-//	@JsonManagedReference
-//	private List<Ride> postedRides = new ArrayList<>();
+	@ManyToMany
+	@JsonBackReference
+	private List<Ride> reservedRides = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "driver")
+	@JsonManagedReference
+	private List<Ride> postedRides = new ArrayList<>();
 }

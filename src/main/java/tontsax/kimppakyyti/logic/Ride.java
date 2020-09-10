@@ -27,17 +27,17 @@ public class Ride extends AbstractPersistable<Long> {
 	private String origin, destination;
 	private Double price;
 	
-//	@ManyToOne
-//	@JsonBackReference
-//	private Account driver;
-//	
-//	@ManyToMany
-//	@JsonManagedReference
-//	private List<Account> passangers = new ArrayList<>();
-//	
-//	public Ride(String origin, String destination, Double price) {
-//		this.origin = origin;
-//		this.destination = destination;
-//		this.price = price;
-//	}
+	@ManyToOne
+	@JsonBackReference
+	private Account driver;
+	
+	@ManyToMany(mappedBy = "reservedRides")
+	@JsonManagedReference
+	private List<Account> passengers = new ArrayList<>();
+	
+	public Ride(String origin, String destination, Double price) {
+		this.origin = origin;
+		this.destination = destination;
+		this.price = price;
+	}
 }

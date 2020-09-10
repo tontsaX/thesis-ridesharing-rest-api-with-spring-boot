@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -51,11 +54,16 @@ public class KimppakyytiApplicationTests {
 	@Autowired
 	private AccountDao accountRepository;
 	
+	private static Account account1, account2;
+	
 	@BeforeEach
 	public void populateDatabase() {
 		if(!databasePopulated) {
-			Account account1 = new Account();
-			Account account2 = new Account();
+//			Account account1 = new Account();
+//			Account account2 = new Account();
+			
+			account1 = new Account();
+			account2 = new Account();
 			
 			account1.setNickName("Decimus");
 			account2.setNickName("Tilemar");
@@ -67,12 +75,11 @@ public class KimppakyytiApplicationTests {
 			Ride ride2 = new Ride("Turku", "Tampere", 23.5);
 			
 //			ride1.setDriver(account1);
-//			ride2.setDriver(account2);
-				
-			System.out.println("Account 1 id: " + accountRepository.save(account1).getId());
-			System.out.println("Account 2 id: " + accountRepository.save(account2).getId());
-			System.out.println("Ride 1 id: " + rideRepository.save(ride1).getId());
-			System.out.println("Ride 2 id: " + rideRepository.save(ride2).getId());
+			ride1.setDriver(accountRepository.getOne(1L));
+			ride2.setDriver(account2);
+
+			rideRepository.save(ride1);
+			rideRepository.save(ride2);
 			
 			databasePopulated = true;
 		}
@@ -132,14 +139,38 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(6)
 	public void postRide() throws Exception {
-		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
+//		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
 //		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\", "
-//				+ "\"driver\":\"0\""
-//				+ "\"passangers:\"null\"\""
+//				+ "\"driver\":\"1\""
+//				+ "\"passengers:\"[]\"\""
 //				+ "}";
+
+		JSONObject jsonAccount1Object = new JSONObject();
+		jsonAccount1Object.put("nickName", account1.getNickName());
+		jsonAccount1Object.put("rankingFive", account1.getRankingFive());
+		jsonAccount1Object.put("reservedRides", account1.getReservedRides());
+		jsonAccount1Object.put("postedRides", account1.getPostedRides());
+		
+		Ride ride = new Ride("Tampere", "Turku", 25.0);
+		ride.setDriver(account1);
+		JSONObject jsonRideObject = new JSONObject();
+		
+		jsonRideObject.put("id", ride.getId());
+		jsonRideObject.put("origin", ride.getOrigin());
+		jsonRideObject.put("destination", ride.getDestination());
+		jsonRideObject.put("price", ride.getPrice());
+//		jsonRideObject.put("driver", jsonAccount1Object);
+		jsonRideObject.put("passengers", ride.getPassengers());
+		
+		String jsonRide = jsonRideObject.toString();
+		
+		System.out.println("---POST-------------");
+		System.out.println(jsonRideObject.toString(1));
+		System.out.println("----------------");
+
 		performRequestAndExpectJson(post("/rides")
-			.contentType(MediaType.APPLICATION_JSON)
-//			.contentType("application/json")
+//			.contentType(MediaType.APPLICATION_JSON)
+			.contentType("application/json")
 			.content(jsonRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"));
@@ -162,8 +193,8 @@ public class KimppakyytiApplicationTests {
 	public void updateRide() throws Exception {
 		String jsonRide = "{\"origin\":\"Turku\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
 		performRequestAndExpectJson(put("/rides/{id}", 3L)
-				.contentType(MediaType.APPLICATION_JSON)
-//				.contentType("application/json")
+//				.contentType(MediaType.APPLICATION_JSON)
+				.contentType("application/json")
 				.content(jsonRide))
 			.andExpect(jsonPath("$.id").value("3"))
 			.andExpect(jsonPath("$.origin").value("Turku"))
@@ -174,8 +205,8 @@ public class KimppakyytiApplicationTests {
 	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
 		return mockMvc.perform(request)
 				.andDo(print())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
-//				.andExpect(content().contentType("application/json"));
+//				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+				.andExpect(content().contentType("application/json"));
 	}
 	
 	private void checkRidesListLength(int length) throws Exception {
