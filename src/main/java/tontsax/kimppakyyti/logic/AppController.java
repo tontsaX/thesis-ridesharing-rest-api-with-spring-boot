@@ -56,8 +56,9 @@ public class AppController {
 		newRide.setDestination(receivedJson.getString("destination"));
 		newRide.setPrice(receivedJson.getDouble("price"));
 		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
-		// listan haku tarvitsee tarkistaa ja rakentaa erikseen
-		// passengers sisältäisi vain matkustajien ideet eli kyseessä olisi Long-array
+//		newRide.setDriver(accountDao.findById(receivedJson.getLong("driverId")).get());
+		// kyytiä postatessa ei tule matkustajalistaa vielä
+		// matkustaja listaa päivitetään "yksi kerrallaan" sitä mukaan, kun joku käyttäjä varaa itsellensä kyydin
 		
 		return rideDao.save(newRide);
 	}
@@ -69,11 +70,16 @@ public class AppController {
 	}
 	
 	@PutMapping("/rides/{id}")
-	public Ride updateRide(@RequestBody Ride ride, @PathVariable Long id) {
-		Ride updatedRide = rideDao.findById(id).get();
-		updatedRide.setOrigin(ride.getOrigin());
-		updatedRide.setDestination(ride.getDestination());
-		updatedRide.setPrice(ride.getPrice());
+	public Ride updateRide(@RequestBody String rideJson, @PathVariable Long id) throws JSONException {
+//		Ride updatedRide = rideDao.findById(id).get();
+		JSONObject receivedJson = new JSONObject(rideJson);
+		
+		Ride updatedRide = rideDao.getOne(id);
+		
+		updatedRide.setOrigin(receivedJson.getString("origin"));
+		updatedRide.setDestination(receivedJson.getString("destination"));
+		updatedRide.setPrice(receivedJson.getDouble("price"));
+
 		return rideDao.save(updatedRide);
 	}
 	
