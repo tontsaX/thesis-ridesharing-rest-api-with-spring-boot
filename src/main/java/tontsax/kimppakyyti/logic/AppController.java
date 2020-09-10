@@ -28,24 +28,7 @@ public class AppController {
 	
 	@GetMapping("/rides")
 	public List<Ride> getRides() {
-//		Account account1 = new Account();
-//		Account account2 = new Account();
-//		
-//		account1.setNickName("Decimus");
-//		account2.setNickName("Tilemar");
-//		
-//		accountDao.save(account1);
-//		accountDao.save(account2);
-//		
-//		Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
-//		Ride ride2 = new Ride("Turku", "Tampere", 23.5);
-//		
-////		ride1.setDriver(account1);
-//		ride1.setDriver(accountDao.getOne(1L));
-//		ride2.setDriver(account2);
-//		rideDao.save(ride1);
-//		rideDao.save(ride2);
-		
+//		databasePopulationLiveTest();
 		return rideDao.findAll();
 	}
 	
@@ -69,12 +52,13 @@ public class AppController {
 		JSONObject receivedJson = new JSONObject(rideJson);
 		
 		Ride newRide = new Ride();
-//		newRide.setDestination(ride.getDestination());
-//		newRide.setOrigin(ride.getOrigin());
-//		newRide.setPrice(ride.getPrice());
-
-//		rideDao.save(newRide);
-//		return rideDao.getOne(newRide.getId());
+		newRide.setOrigin(receivedJson.getString("origin"));
+		newRide.setDestination(receivedJson.getString("destination"));
+		newRide.setPrice(receivedJson.getDouble("price"));
+		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
+		// listan haku tarvitsee tarkistaa ja rakentaa erikseen
+		// passengers sisältäisi vain matkustajien ideet eli kyseessä olisi Long-array
+		
 		return rideDao.save(newRide);
 	}
 	
@@ -91,6 +75,26 @@ public class AppController {
 		updatedRide.setDestination(ride.getDestination());
 		updatedRide.setPrice(ride.getPrice());
 		return rideDao.save(updatedRide);
+	}
+	
+	private void databasePopulationLiveTest() {
+		Account account1 = new Account();
+		Account account2 = new Account();
+		
+		account1.setNickName("Decimus");
+		account2.setNickName("Tilemar");
+		
+		accountDao.save(account1);
+		accountDao.save(account2);
+		
+		Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
+		Ride ride2 = new Ride("Turku", "Tampere", 23.5);
+		
+//		ride1.setDriver(account1);
+		ride1.setDriver(accountDao.getOne(1L));
+		ride2.setDriver(account2);
+		rideDao.save(ride1);
+		rideDao.save(ride2);
 	}
 	
 }

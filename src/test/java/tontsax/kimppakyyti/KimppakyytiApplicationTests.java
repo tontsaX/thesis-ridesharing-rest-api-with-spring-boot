@@ -139,27 +139,15 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(6)
 	public void postRide() throws Exception {
-//		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\"}";
-//		String jsonRide = "{\"origin\":\"Tampere\",\"destination\":\"Oulu\",\"price\":\"25.0\", "
-//				+ "\"driver\":\"1\""
-//				+ "\"passengers:\"[]\"\""
-//				+ "}";
-
-		JSONObject jsonAccount1Object = new JSONObject();
-		jsonAccount1Object.put("nickName", account1.getNickName());
-		jsonAccount1Object.put("rankingFive", account1.getRankingFive());
-		jsonAccount1Object.put("reservedRides", account1.getReservedRides());
-		jsonAccount1Object.put("postedRides", account1.getPostedRides());
 		
-		Ride ride = new Ride("Tampere", "Turku", 25.0);
-		ride.setDriver(account1);
+		Ride ride = new Ride("Tampere", "Oulu", 25.0);
+		
 		JSONObject jsonRideObject = new JSONObject();
 		
-		jsonRideObject.put("id", ride.getId());
 		jsonRideObject.put("origin", ride.getOrigin());
 		jsonRideObject.put("destination", ride.getDestination());
 		jsonRideObject.put("price", ride.getPrice());
-//		jsonRideObject.put("driver", jsonAccount1Object);
+		jsonRideObject.put("driverId", account1.getId());
 		jsonRideObject.put("passengers", ride.getPassengers());
 		
 		String jsonRide = jsonRideObject.toString();
@@ -169,8 +157,7 @@ public class KimppakyytiApplicationTests {
 		System.out.println("----------------");
 
 		performRequestAndExpectJson(post("/rides")
-//			.contentType(MediaType.APPLICATION_JSON)
-			.contentType("application/json")
+			.contentType(MediaType.APPLICATION_JSON)
 			.content(jsonRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"));
