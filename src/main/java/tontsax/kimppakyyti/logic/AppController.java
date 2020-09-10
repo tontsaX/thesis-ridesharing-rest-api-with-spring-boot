@@ -64,20 +64,6 @@ public class AppController {
 		return rideDao.getOne(id);
 	}
 	
-////	@PostMapping("/rides")
-//	@PostMapping(path = "/rides", consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
-////	@PostMapping(path = "/rides", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-//	public Ride postRide(@RequestBody Ride ride) {
-//		Ride newRide = new Ride();
-//		newRide.setDestination(ride.getDestination());
-//		newRide.setOrigin(ride.getOrigin());
-//		newRide.setPrice(ride.getPrice());
-//
-////		rideDao.save(newRide);
-////		return rideDao.getOne(newRide.getId());
-//		return rideDao.save(newRide);
-//	}
-	
 	@PostMapping("/rides")
 	public Ride postRide(@RequestBody String rideJson) throws JSONException {
 		JSONObject receivedJson = new JSONObject(rideJson);
