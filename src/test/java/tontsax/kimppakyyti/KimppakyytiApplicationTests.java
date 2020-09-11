@@ -82,16 +82,6 @@ public class KimppakyytiApplicationTests {
 		}
 	}
 	
-//	@Test
-//	public void registerToApp() throws Exception {
-//		
-//	}
-//	
-//	@Test
-//	public void loginToAccount() throws Exception {
-//		
-//	}
-	
 	@Test
 	@Order(1)
 	public void checkConnection() throws Exception {
@@ -184,6 +174,30 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.destination").value("Oulu"))
 			.andExpect(jsonPath("$.price").value("25.0"));
 	}
+	
+//	@Test
+//	@Order(9)
+//	public void registerToApp() throws Exception {
+//		
+//	}
+//	
+//	@Test
+//	@Order(10)
+//	public void loginToAccount() throws Exception {
+//		
+//	}
+//	
+//	@Test
+//	@Order(11)
+//	public void hopOnARide() throws Exception {
+//		
+//	}
+//	
+//	@Test
+//	@Order(12)
+//	public void cancelARide() throws Exception {
+//		
+//	}
 	
 	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
 		return mockMvc.perform(request)
