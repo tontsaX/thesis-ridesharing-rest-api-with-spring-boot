@@ -56,9 +56,6 @@ public class AppController {
 		newRide.setDestination(receivedJson.getString("destination"));
 		newRide.setPrice(receivedJson.getDouble("price"));
 		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
-//		newRide.setDriver(accountDao.findById(receivedJson.getLong("driverId")).get());
-		// kyytiä postatessa ei tule matkustajalistaa vielä
-		// matkustaja listaa päivitetään "yksi kerrallaan" sitä mukaan, kun joku käyttäjä varaa itsellensä kyydin
 		
 		return rideDao.save(newRide);
 	}
@@ -83,6 +80,16 @@ public class AppController {
 		return rideDao.save(updatedRide);
 	}
 	
+	@PostMapping("/register")
+	public Account registerToApp(@RequestBody String accountJson) throws JSONException {
+		JSONObject receivedJson = new JSONObject(accountJson);
+		
+		Account newAccount = new Account();
+		newAccount.setNickName(receivedJson.getString("nickName"));
+		
+		return accountDao.save(newAccount);
+	}
+	
 	private void databasePopulationLiveTest() {
 		Account account1 = new Account();
 		Account account2 = new Account();
@@ -96,9 +103,9 @@ public class AppController {
 		Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
 		Ride ride2 = new Ride("Turku", "Tampere", 23.5);
 		
-//		ride1.setDriver(account1);
 		ride1.setDriver(accountDao.getOne(1L));
-		ride2.setDriver(account2);
+		ride2.setDriver(accountDao.getOne(2L));
+		
 		rideDao.save(ride1);
 		rideDao.save(ride2);
 	}

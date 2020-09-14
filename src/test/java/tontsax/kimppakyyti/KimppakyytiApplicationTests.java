@@ -175,11 +175,18 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.price").value("25.0"));
 	}
 	
-//	@Test
-//	@Order(9)
-//	public void registerToApp() throws Exception {
-//		
-//	}
+	@Test
+	@Order(9)
+	public void registerToApp() throws Exception {
+		JSONObject newDriver = new JSONObject();
+		newDriver.put("nickName", "Tontsa");
+		
+		performRequestAndExpectJson(post("/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(newDriver.toString()))
+			.andExpect(jsonPath("$.id").value("6"))
+			.andExpect(jsonPath("$.nickName").value("Tontsa"));
+	}
 //	
 //	@Test
 //	@Order(10)
