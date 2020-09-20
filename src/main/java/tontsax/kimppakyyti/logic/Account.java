@@ -1,5 +1,6 @@
 package tontsax.kimppakyyti.logic;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class Account extends AbstractPersistable<Long> {
 
 	private String nickName;
 	private int rankingFive;
+	private LocalDateTime registered;
 	
 	@ManyToMany
 	@JsonBackReference

@@ -1,5 +1,6 @@
 package tontsax.kimppakyyti.logic;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,9 @@ public class Ride extends AbstractPersistable<Long> {
 	
 	private String origin, destination;
 	private Double price;
+	
+	private LocalDateTime created = LocalDateTime.now();
+	private LocalDateTime departure, arrival;
 	
 	@ManyToOne
 	@JsonBackReference

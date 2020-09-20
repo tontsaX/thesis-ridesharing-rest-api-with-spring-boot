@@ -1,5 +1,7 @@
 package tontsax.kimppakyyti.logic;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,6 @@ public class AppController {
 	
 	@GetMapping("/rides")
 	public List<Ride> getRides() {
-//		databasePopulationLiveTest();
 		return rideDao.findAll();
 	}
 	
@@ -57,6 +58,10 @@ public class AppController {
 		newRide.setPrice(receivedJson.getDouble("price"));
 		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
 		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
+		newRide.setDeparture(LocalDateTime.parse(receivedJson.getString("departure"), formatter));
+		newRide.setArrival(LocalDateTime.parse(receivedJson.getString("arrival"), formatter));
+		
 		return rideDao.save(newRide);
 	}
 	
@@ -68,7 +73,6 @@ public class AppController {
 	
 	@PutMapping("/rides/{id}")
 	public Ride updateRide(@RequestBody String rideJson, @PathVariable Long id) throws JSONException {
-//		Ride updatedRide = rideDao.findById(id).get();
 		JSONObject receivedJson = new JSONObject(rideJson);
 		
 		Ride updatedRide = rideDao.getOne(id);
@@ -76,6 +80,10 @@ public class AppController {
 		updatedRide.setOrigin(receivedJson.getString("origin"));
 		updatedRide.setDestination(receivedJson.getString("destination"));
 		updatedRide.setPrice(receivedJson.getDouble("price"));
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
+		updatedRide.setDeparture(LocalDateTime.parse(receivedJson.getString("departure"), formatter));
+		updatedRide.setArrival(LocalDateTime.parse(receivedJson.getString("arrival"), formatter));
 
 		return rideDao.save(updatedRide);
 	}
@@ -88,26 +96,6 @@ public class AppController {
 		newAccount.setNickName(receivedJson.getString("nickName"));
 		
 		return accountDao.save(newAccount);
-	}
-	
-	private void databasePopulationLiveTest() {
-		Account account1 = new Account();
-		Account account2 = new Account();
-		
-		account1.setNickName("Decimus");
-		account2.setNickName("Tilemar");
-		
-		accountDao.save(account1);
-		accountDao.save(account2);
-		
-		Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
-		Ride ride2 = new Ride("Turku", "Tampere", 23.5);
-		
-		ride1.setDriver(accountDao.getOne(1L));
-		ride2.setDriver(accountDao.getOne(2L));
-		
-		rideDao.save(ride1);
-		rideDao.save(ride2);
 	}
 	
 }
