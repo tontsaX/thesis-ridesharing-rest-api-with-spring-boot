@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tontsax.kimppakyyti.dao.Account;
@@ -43,6 +44,28 @@ public class AppController {
 	@GetMapping("/rides/to{destination}")
 	public List<Ride> getRidesByDestination(@PathVariable String destination) {
 		return rideDao.findByDestination(destination);
+	}
+	
+	@GetMapping("/rides/departure")
+	public List<Ride> getRidesByDeparture(@RequestParam String departure) {
+		System.out.println("---------------------");
+		System.out.println("DEPARTURE: " + LocalDateTime.parse(departure));
+		System.out.println("-------------------------------");
+		
+//		List<Ride> rides = rideDao.findByDeparture(LocalDateTime.parse(departure));
+		List<Ride> rides = rideDao.findByDeparture(LocalDateTime.of(2020, 9, 22, 14, 14));
+		
+		System.out.println("Rides: " + rides);
+		
+//		return rideDao.findByDeparture(LocalDateTime.parse(departure));
+//		return rideDao.findByDeparture(findByDate);
+		return rides;
+	}
+	
+	@GetMapping("/rides/arrival")
+	public List<Ride> getRidesByArrival(@RequestParam String arrival) {
+		return rideDao.findByArrival(LocalDateTime.parse(arrival));
+//		return rideDao.findByArrival(arrival);
 	}
 	
 	@GetMapping("/rides/{id}")

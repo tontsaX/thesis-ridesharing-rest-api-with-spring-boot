@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -70,8 +72,16 @@ public class KimppakyytiApplicationTests {
 			Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
 			Ride ride2 = new Ride("Turku", "Tampere", 23.5);
 			
+			LocalDateTime departure = LocalDateTime.of(2020, 9, 22, 14, 14);
+			LocalDateTime arrival = LocalDateTime.of(2020, 9, 23, 15, 15);
+			
+			ride1.setDeparture(departure);
+			ride1.setArrival(arrival);
 			ride1.setDriver(accountRepository.getOne(1L));
-			ride2.setDriver(account2);
+			
+			ride2.setDriver(accountRepository.getOne(2L));
+			ride2.setDeparture(departure);
+			ride2.setArrival(arrival);
 
 			rideRepository.save(ride1);
 			rideRepository.save(ride2);
@@ -108,6 +118,18 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	@Test
+	@Order(13)
+	public void getRidesByDepartureAndArrival() throws Exception {
+		performRequestAndExpectJson(get("/rides/departure").param("departure", "2020-09-22T14:14:00"))
+		.andExpect(jsonPath("$.length()", is(1)))
+		.andExpect(jsonPath("$.id").value(3L));
+		
+		performRequestAndExpectJson(get("/rides/arrival").param("arrival", "2020-09-23T15:15:00"))
+		.andExpect(jsonPath("$.length()", is(1)))
+		.andExpect(jsonPath("$.id").value(3L));
+	}
+	
+	@Test
 	@Order(5)
 	public void findRideById() throws Exception {
 		getRideById((long) 3, "Turku", "Helsinki");
@@ -118,7 +140,9 @@ public class KimppakyytiApplicationTests {
 		performRequestAndExpectJson(get("/rides/{id}", id))
 			.andExpect(jsonPath("$.id").value(id.toString()))	
 			.andExpect(jsonPath("$.origin").value(origin))
-			.andExpect(jsonPath("$.destination").value(destination));
+			.andExpect(jsonPath("$.destination").value(destination))
+			.andExpect(jsonPath("$.departure").value("2020-09-22T14:14:00"))
+			.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15:00"));
 	}
 	
 	@Test
