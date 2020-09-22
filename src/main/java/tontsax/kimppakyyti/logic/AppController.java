@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import tontsax.kimppakyyti.dao.Account;
 import tontsax.kimppakyyti.dao.AccountDao;
+import tontsax.kimppakyyti.dao.Ride;
 import tontsax.kimppakyyti.dao.RideDao;
 
 @RestController
