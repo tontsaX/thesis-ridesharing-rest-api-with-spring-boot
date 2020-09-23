@@ -12,8 +12,10 @@ public interface RideDao extends JpaRepository<Ride, Long> {
 	// näitä tarvitsee tarkentaa jotenkin
 	// LocalDateTime-oliolla ei ole saanut tuloksia
 	// muutenkin tarvitsisi olla haku, jossa haetaan pvm perusteella eikä pvm ja kellonajalla
-	List<Ride> findByDeparture(LocalDateTime departure);
-	List<Ride> findByArrival(LocalDateTime arrival);
-	List<Ride> findByDepartureLike(LocalDateTime departure);
+//	List<Ride> findByDeparture(LocalDateTime departure);
+//	List<Ride> findByArrival(LocalDateTime arrival);
+//	List<Ride> findByDepartureLike(LocalDateTime departure);
 //	List<Ride> findByDepartureLike(String departure);
+	List<Ride> findByDepartureContaining(String departureDate);
+	List<Ride> findByArrivalContaining(String arrivalDate);
 }

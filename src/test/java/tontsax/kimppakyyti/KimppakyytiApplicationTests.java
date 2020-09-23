@@ -120,14 +120,19 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(13)
 	public void getRidesByDepartureAndArrival() throws Exception {
-		// ride with id 3 has been updated at this point
-		performRequestAndExpectJson(get("/rides/departure").param("departure", "2020-09-03T13:55:00"))
-		.andExpect(jsonPath("$.length()", is(1)))
-		.andExpect(jsonPath("$.id").value(3L));
+		String departure = LocalDateTime.of(2020, 9, 3, 13, 55).toString();
+		String arrival = LocalDateTime.of(2020, 9, 3, 14, 25).toString();
 		
-		performRequestAndExpectJson(get("/rides/arrival").param("arrival", "2020-09-03T14:25:00"))
+		// ride with id 3 has been updated at this point
+		performRequestAndExpectJson(get("/rides/departure").param("departure", departure))
 		.andExpect(jsonPath("$.length()", is(1)))
-		.andExpect(jsonPath("$.id").value(3L));
+		.andExpect(jsonPath("$[0].id").value(3L))
+		.andExpect(jsonPath("$[0].departure").value(departure));
+		
+		performRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
+		.andExpect(jsonPath("$.length()", is(1)))
+		.andExpect(jsonPath("$[0].id").value(3L))
+		.andExpect(jsonPath("$[0].arrival").value(arrival));
 	}
 	
 	@Test

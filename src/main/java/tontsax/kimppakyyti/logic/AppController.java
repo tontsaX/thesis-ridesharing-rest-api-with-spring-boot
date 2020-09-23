@@ -1,7 +1,7 @@
 package tontsax.kimppakyyti.logic;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +48,19 @@ public class AppController {
 	
 	@GetMapping("/rides/departure")
 	public List<Ride> getRidesByDeparture(@RequestParam String departure) {
-//		List<Ride> rides = rideDao.findByDeparture(LocalDateTime.parse(departure));
-		return null;
+		return rideDao.findByDepartureContaining(trimToDate(departure));
 	}
 	
 	@GetMapping("/rides/arrival")
 	public List<Ride> getRidesByArrival(@RequestParam String arrival) {
-		return rideDao.findByArrival(LocalDateTime.parse(arrival));
-//		return rideDao.findByArrival(arrival);
+		return rideDao.findByArrivalContaining(trimToDate(arrival));
+	}
+	
+	private String trimToDate(String localDateTime) {
+		LocalDateTime dateTime = LocalDateTime.parse(localDateTime);
+		LocalDate date = LocalDate.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth());
+		String trimmedDate = date.toString();
+		return trimmedDate;
 	}
 	
 	@GetMapping("/rides/{id}")
@@ -93,8 +98,6 @@ public class AppController {
 		updatedRide.setOrigin(receivedJson.getString("origin"));
 		updatedRide.setDestination(receivedJson.getString("destination"));
 		updatedRide.setPrice(receivedJson.getDouble("price"));
-		
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
 		updatedRide.setDeparture(receivedJson.getString("departure"));
 		updatedRide.setArrival(receivedJson.getString("arrival"));
 
