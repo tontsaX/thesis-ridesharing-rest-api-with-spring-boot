@@ -75,13 +75,13 @@ public class KimppakyytiApplicationTests {
 			LocalDateTime departure = LocalDateTime.of(2020, 9, 22, 14, 14);
 			LocalDateTime arrival = LocalDateTime.of(2020, 9, 23, 15, 15);
 			
-			ride1.setDeparture(departure);
-			ride1.setArrival(arrival);
+			ride1.setDeparture(departure.toString());
+			ride1.setArrival(arrival.toString());
 			ride1.setDriver(accountRepository.getOne(1L));
 			
 			ride2.setDriver(accountRepository.getOne(2L));
-			ride2.setDeparture(departure);
-			ride2.setArrival(arrival);
+			ride2.setDeparture(departure.toString());
+			ride2.setArrival(arrival.toString());
 
 			rideRepository.save(ride1);
 			rideRepository.save(ride2);
@@ -120,11 +120,12 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(13)
 	public void getRidesByDepartureAndArrival() throws Exception {
-		performRequestAndExpectJson(get("/rides/departure").param("departure", "2020-09-22T14:14:00"))
+		// ride with id 3 has been updated at this point
+		performRequestAndExpectJson(get("/rides/departure").param("departure", "2020-09-03T13:55:00"))
 		.andExpect(jsonPath("$.length()", is(1)))
 		.andExpect(jsonPath("$.id").value(3L));
 		
-		performRequestAndExpectJson(get("/rides/arrival").param("arrival", "2020-09-23T15:15:00"))
+		performRequestAndExpectJson(get("/rides/arrival").param("arrival", "2020-09-03T14:25:00"))
 		.andExpect(jsonPath("$.length()", is(1)))
 		.andExpect(jsonPath("$.id").value(3L));
 	}
@@ -141,8 +142,8 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.id").value(id.toString()))	
 			.andExpect(jsonPath("$.origin").value(origin))
 			.andExpect(jsonPath("$.destination").value(destination))
-			.andExpect(jsonPath("$.departure").value("2020-09-22T14:14:00"))
-			.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15:00"));
+			.andExpect(jsonPath("$.departure").value("2020-09-22T14:14"))
+			.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15"));
 	}
 	
 	@Test
@@ -156,8 +157,8 @@ public class KimppakyytiApplicationTests {
 		jsonRideObject.put("destination", ride.getDestination());
 		jsonRideObject.put("price", ride.getPrice());
 		jsonRideObject.put("driverId", account1.getId());
-		jsonRideObject.put("departure", "24.12.2020 18:45");
-		jsonRideObject.put("arrival", "25.12.2020 14:25");
+		jsonRideObject.put("departure", LocalDateTime.of(2020, 12, 24, 18, 45));
+		jsonRideObject.put("arrival", LocalDateTime.of(2020, 12, 25, 14, 25));
 		
 		String postedRide = jsonRideObject.toString();
 
@@ -166,8 +167,8 @@ public class KimppakyytiApplicationTests {
 			.content(postedRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"))
-			.andExpect(jsonPath("$.departure").value("2020-12-24T18:45:00"))
-			.andExpect(jsonPath("$.arrival").value("2020-12-25T14:25:00"));
+			.andExpect(jsonPath("$.departure").value(LocalDateTime.of(2020, 12, 24, 18, 45).toString()))
+			.andExpect(jsonPath("$.arrival").value(LocalDateTime.of(2020, 12, 25, 14, 25).toString()));
 		
 		checkRidesListLength(3);
 	}
@@ -190,8 +191,8 @@ public class KimppakyytiApplicationTests {
 		jsonRideObject.put("origin", "Turku");
 		jsonRideObject.put("destination", "Oulu");
 		jsonRideObject.put("price", 25.0);
-		jsonRideObject.put("departure", "3.9.2020 13:55");
-		jsonRideObject.put("arrival", "3.9.2020 14:25");
+		jsonRideObject.put("departure", LocalDateTime.of(2020,9,3,13,55));
+		jsonRideObject.put("arrival", LocalDateTime.of(2020,9,3,14,25));
 		
 		String jsonRide = jsonRideObject.toString();
 		
@@ -202,8 +203,8 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.origin").value("Turku"))
 			.andExpect(jsonPath("$.destination").value("Oulu"))
 			.andExpect(jsonPath("$.price").value("25.0"))
-			.andExpect(jsonPath("$.departure").value("2020-09-03T13:55:00"))
-			.andExpect(jsonPath("$.arrival").value("2020-09-03T14:25:00"));
+			.andExpect(jsonPath("$.departure").value(LocalDateTime.of(2020,9,3,13,55).toString()))
+			.andExpect(jsonPath("$.arrival").value(LocalDateTime.of(2020,9,3,14,25).toString()));
 	}
 	
 	@Test

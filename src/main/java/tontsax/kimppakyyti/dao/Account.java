@@ -27,7 +27,7 @@ public class Account extends AbstractPersistable<Long> {
 
 	private String nickName;
 	private int rankingFive;
-	private LocalDateTime registered;
+	private LocalDateTime registered = LocalDateTime.now();
 	
 	@ManyToMany
 	@JsonBackReference

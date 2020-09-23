@@ -48,18 +48,8 @@ public class AppController {
 	
 	@GetMapping("/rides/departure")
 	public List<Ride> getRidesByDeparture(@RequestParam String departure) {
-		System.out.println("---------------------");
-		System.out.println("DEPARTURE: " + LocalDateTime.parse(departure));
-		System.out.println("-------------------------------");
-		
 //		List<Ride> rides = rideDao.findByDeparture(LocalDateTime.parse(departure));
-		List<Ride> rides = rideDao.findByDeparture(LocalDateTime.of(2020, 9, 22, 14, 14));
-		
-		System.out.println("Rides: " + rides);
-		
-//		return rideDao.findByDeparture(LocalDateTime.parse(departure));
-//		return rideDao.findByDeparture(findByDate);
-		return rides;
+		return null;
 	}
 	
 	@GetMapping("/rides/arrival")
@@ -82,10 +72,8 @@ public class AppController {
 		newRide.setDestination(receivedJson.getString("destination"));
 		newRide.setPrice(receivedJson.getDouble("price"));
 		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
-		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
-		newRide.setDeparture(LocalDateTime.parse(receivedJson.getString("departure"), formatter));
-		newRide.setArrival(LocalDateTime.parse(receivedJson.getString("arrival"), formatter));
+		newRide.setDeparture(receivedJson.getString("departure"));
+		newRide.setArrival(receivedJson.getString("arrival"));
 		
 		return rideDao.save(newRide);
 	}
@@ -106,9 +94,9 @@ public class AppController {
 		updatedRide.setDestination(receivedJson.getString("destination"));
 		updatedRide.setPrice(receivedJson.getDouble("price"));
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
-		updatedRide.setDeparture(LocalDateTime.parse(receivedJson.getString("departure"), formatter));
-		updatedRide.setArrival(LocalDateTime.parse(receivedJson.getString("arrival"), formatter));
+//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:m");
+		updatedRide.setDeparture(receivedJson.getString("departure"));
+		updatedRide.setArrival(receivedJson.getString("arrival"));
 
 		return rideDao.save(updatedRide);
 	}

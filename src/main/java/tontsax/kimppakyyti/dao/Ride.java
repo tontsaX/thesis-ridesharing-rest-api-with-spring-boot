@@ -29,7 +29,7 @@ public class Ride extends AbstractPersistable<Long> {
 	private Double price;
 	
 	private LocalDateTime created = LocalDateTime.now();
-	private LocalDateTime departure, arrival;
+	private String departure, arrival;
 	
 	@ManyToOne
 	@JsonBackReference
