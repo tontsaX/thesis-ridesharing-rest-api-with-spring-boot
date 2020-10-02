@@ -100,7 +100,8 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(2)
 	public void getListOfAllRides() throws Exception {
-		checkRidesListLength(2);
+		// arguments: length of the rides list, the first ride's id
+		checkRidesListLength(2, "4");
 	}
 	
 	@Test
@@ -175,7 +176,7 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.departure").value(LocalDateTime.of(2020, 12, 24, 18, 45).toString()))
 			.andExpect(jsonPath("$.arrival").value(LocalDateTime.of(2020, 12, 25, 14, 25).toString()));
 		
-		checkRidesListLength(3);
+		checkRidesListLength(3,"4");
 	}
 	
 	@Test
@@ -185,7 +186,7 @@ public class KimppakyytiApplicationTests {
 		String content = request.getResponse().getContentAsString();
 		
 		Assert.assertTrue(content.equalsIgnoreCase("true"));
-		checkRidesListLength(2);
+		checkRidesListLength(2, "3");
 	}
 	
 	@Test
@@ -249,8 +250,10 @@ public class KimppakyytiApplicationTests {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
 	
-	private void checkRidesListLength(int length) throws Exception {
+	private void checkRidesListLength(int length, String id) throws Exception {
 		performRequestAndExpectJson(get("/rides"))
-		.andExpect(jsonPath("$.length()", is(length)));
+//		.andExpect(jsonPath("$.length()", is(length)))
+		.andExpect(jsonPath("$.totalElements", is(length)))
+		.andExpect(jsonPath("$.content[0].id").value(id));
 	}
 }
