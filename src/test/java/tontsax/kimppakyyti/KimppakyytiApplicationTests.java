@@ -56,6 +56,8 @@ public class KimppakyytiApplicationTests {
 	
 	private static Account account1, account2;
 	
+	private ResultActions mvcResultActions;
+	
 	@BeforeEach
 	public void populateDatabase() {
 		if(!databasePopulated) {
@@ -100,8 +102,8 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(2)
 	public void getListOfAllRides() throws Exception {
-		// arguments: length of the rides list, the first ride's id
-		checkRidesListLength(2, "4");
+		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		checkRidesListLength(2);
 	}
 	
 	@Test
@@ -139,11 +141,11 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(5)
 	public void findRideById() throws Exception {
-		getRideById((long) 3, "Turku", "Helsinki");
-		getRideById((long) 4, "Turku", "Tampere");
+		requestRideById(3L, "Turku", "Helsinki");
+		requestRideById(4L, "Turku", "Tampere");
 	}
 	
-	private void getRideById(Long id, String origin, String destination) throws Exception {
+	private void requestRideById(Long id, String origin, String destination) throws Exception {
 		performRequestAndExpectJson(get("/rides/{id}", id))
 			.andExpect(jsonPath("$.id").value(id.toString()))	
 			.andExpect(jsonPath("$.origin").value(origin))
@@ -156,6 +158,8 @@ public class KimppakyytiApplicationTests {
 	@Order(6)
 	public void postRide() throws Exception {
 		Ride ride = new Ride("Tampere", "Oulu", 25.0);
+		String departure = LocalDateTime.of(2020, 12, 24, 18, 45).toString();
+		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
 		
 		JSONObject jsonRideObject = new JSONObject();
 		
@@ -163,20 +167,23 @@ public class KimppakyytiApplicationTests {
 		jsonRideObject.put("destination", ride.getDestination());
 		jsonRideObject.put("price", ride.getPrice());
 		jsonRideObject.put("driverId", account1.getId());
-		jsonRideObject.put("departure", LocalDateTime.of(2020, 12, 24, 18, 45));
-		jsonRideObject.put("arrival", LocalDateTime.of(2020, 12, 25, 14, 25));
+		jsonRideObject.put("departure", departure);
+		jsonRideObject.put("arrival", arrival);
 		
 		String postedRide = jsonRideObject.toString();
 
-		performRequestAndExpectJson(post("/rides")
+		mvcResultActions = performRequestAndExpectJson(post("/rides")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(postedRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"))
-			.andExpect(jsonPath("$.departure").value(LocalDateTime.of(2020, 12, 24, 18, 45).toString()))
-			.andExpect(jsonPath("$.arrival").value(LocalDateTime.of(2020, 12, 25, 14, 25).toString()));
+			.andExpect(jsonPath("$.departure").value(departure))
+			.andExpect(jsonPath("$.arrival").value(arrival));
 		
-		checkRidesListLength(3,"4");
+		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		checkRidesListLength(3);
+//		int listLength = 3;
+//		checkRidesListLength(listLength, departure, arrival);
 	}
 	
 	@Test
@@ -186,7 +193,9 @@ public class KimppakyytiApplicationTests {
 		String content = request.getResponse().getContentAsString();
 		
 		Assert.assertTrue(content.equalsIgnoreCase("true"));
-		checkRidesListLength(2, "3");
+		
+		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		checkRidesListLength(2);
 	}
 	
 	@Test
@@ -250,10 +259,8 @@ public class KimppakyytiApplicationTests {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
 	
-	private void checkRidesListLength(int length, String id) throws Exception {
-		performRequestAndExpectJson(get("/rides"))
-//		.andExpect(jsonPath("$.length()", is(length)))
-		.andExpect(jsonPath("$.totalElements", is(length)))
-		.andExpect(jsonPath("$.content[0].id").value(id));
+	private void checkRidesListLength(int length) throws Exception {
+		mvcResultActions
+		.andExpect(jsonPath("$.totalElements", is(length)));
 	}
 }

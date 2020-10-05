@@ -36,8 +36,8 @@ public class AppController {
 	private AccountDao accountDao;
 	
 	@GetMapping("/rides")
-	public Page<Ride> getRides() {
-		Pageable sorter = PageRequest.of(0,10,Sort.by("departure").ascending());
+	public Page<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
+		Pageable sorter = PageRequest.of(page,10,Sort.by("departure").ascending());
 		return rideDao.findAll(sorter);
 	}
 	
