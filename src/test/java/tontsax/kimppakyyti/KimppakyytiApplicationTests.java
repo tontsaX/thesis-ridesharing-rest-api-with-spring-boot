@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -139,8 +140,14 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	@Test
+	@Order(14)
+	public void getRidesOfTheSecondPage() {
+		
+	}
+	
+	@Test
 	@Order(5)
-	public void findRideById() throws Exception {
+	public void getRideById() throws Exception {
 		requestRideById(3L, "Turku", "Helsinki");
 		requestRideById(4L, "Turku", "Tampere");
 	}
@@ -157,24 +164,15 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(6)
 	public void postRide() throws Exception {
-		Ride ride = new Ride("Tampere", "Oulu", 25.0);
 		String departure = LocalDateTime.of(2020, 8, 24, 18, 45).toString();
 		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
-		
-		JSONObject jsonRideObject = new JSONObject();
-		
-		jsonRideObject.put("origin", ride.getOrigin());
-		jsonRideObject.put("destination", ride.getDestination());
-		jsonRideObject.put("price", ride.getPrice());
-		jsonRideObject.put("driverId", account1.getId());
-		jsonRideObject.put("departure", departure);
-		jsonRideObject.put("arrival", arrival);
-		
-		String postedRide = jsonRideObject.toString();
 
+		JSONObject jsonRideObject = createJsonRide("Tampere", "Oulu",
+												   25.0, account1.getId(),
+												   departure, arrival);
+		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(postedRide))
+			.content(jsonRideObject.toString()))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
 			.andExpect(jsonPath("$.destination").value("Oulu"))
 			.andExpect(jsonPath("$.departure").value(departure))
@@ -222,7 +220,6 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.price").value("25.0"))
 			.andExpect(jsonPath("$.departure").value(departure))
 			.andExpect(jsonPath("$.arrival").value(arrival));
-
 	}
 	
 	@Test
@@ -237,6 +234,7 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.id").value("6"))
 			.andExpect(jsonPath("$.nickName").value("Tontsa"));
 	}
+	
 //	
 //	@Test
 //	@Order(10)
@@ -275,5 +273,20 @@ public class KimppakyytiApplicationTests {
 		mvcResultActions
 		.andExpect(jsonPath("$.content[" + index + "].departure").value(departure))
 		.andExpect(jsonPath("$.content[" + index + "].arrival").value(arrival));
+	}
+	
+	private static JSONObject createJsonRide(String origin, String destination,
+									  double price, long driverId,
+									  String departure, String arrival) throws JSONException {
+		JSONObject jsonRideObject = new JSONObject();
+		
+		jsonRideObject.put("origin", origin);
+		jsonRideObject.put("destination", destination);
+		jsonRideObject.put("price", price);
+		jsonRideObject.put("driverId", driverId);
+		jsonRideObject.put("departure", departure);
+		jsonRideObject.put("arrival", arrival);
+		
+		return jsonRideObject;
 	}
 }

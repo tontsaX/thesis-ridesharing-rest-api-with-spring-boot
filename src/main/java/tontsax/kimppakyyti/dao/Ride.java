@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class Ride extends AbstractPersistable<Long> {
 	
 	private String origin, destination;
-	private Double price;
+	private double price;
 	
 	private LocalDateTime created = LocalDateTime.now();
 	private String departure, arrival;
