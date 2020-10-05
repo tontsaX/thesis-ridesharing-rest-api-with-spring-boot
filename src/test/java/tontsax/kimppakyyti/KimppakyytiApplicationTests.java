@@ -102,37 +102,37 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(2)
 	public void getListOfAllRides() throws Exception {
-		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		mvcResultActions = performJsonRequestAllRidesAndExpectJson();
 		checkRidesListLength(2);
 	}
 	
 	@Test
 	@Order(3)
 	public void getRidesByOrigin() throws Exception {
-		performRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
+		performJsonRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
 		.andExpect(jsonPath("$.length()", is(2)));
 	}
 	
 	@Test
 	@Order(4)
 	public void getRidesByDestination() throws Exception {
-		performRequestAndExpectJson(get("/rides/to{destination}", "Helsinki"))
+		performJsonRequestAndExpectJson(get("/rides/to{destination}", "Helsinki"))
 		.andExpect(jsonPath("$.length()", is(1)));
 	}
 	
 	@Test
 	@Order(13)
 	public void getRidesByDepartureAndArrival() throws Exception {
-		String departure = LocalDateTime.of(2020, 9, 3, 13, 55).toString();
+		String departure = LocalDateTime.of(2020, 7, 3, 13, 55).toString();
 		String arrival = LocalDateTime.of(2020, 9, 3, 14, 25).toString();
 		
 		// ride with id 3 has been updated at this point
-		performRequestAndExpectJson(get("/rides/departure").param("departure", departure))
+		performJsonRequestAndExpectJson(get("/rides/departure").param("departure", departure))
 		.andExpect(jsonPath("$.length()", is(1)))
 		.andExpect(jsonPath("$[0].id").value(3L))
 		.andExpect(jsonPath("$[0].departure").value(departure));
 		
-		performRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
+		performJsonRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
 		.andExpect(jsonPath("$.length()", is(1)))
 		.andExpect(jsonPath("$[0].id").value(3L))
 		.andExpect(jsonPath("$[0].arrival").value(arrival));
@@ -146,7 +146,7 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	private void requestRideById(Long id, String origin, String destination) throws Exception {
-		performRequestAndExpectJson(get("/rides/{id}", id))
+		performJsonRequestAndExpectJson(get("/rides/{id}", id))
 			.andExpect(jsonPath("$.id").value(id.toString()))	
 			.andExpect(jsonPath("$.origin").value(origin))
 			.andExpect(jsonPath("$.destination").value(destination))
@@ -158,7 +158,7 @@ public class KimppakyytiApplicationTests {
 	@Order(6)
 	public void postRide() throws Exception {
 		Ride ride = new Ride("Tampere", "Oulu", 25.0);
-		String departure = LocalDateTime.of(2020, 12, 24, 18, 45).toString();
+		String departure = LocalDateTime.of(2020, 8, 24, 18, 45).toString();
 		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
 		
 		JSONObject jsonRideObject = new JSONObject();
@@ -172,7 +172,7 @@ public class KimppakyytiApplicationTests {
 		
 		String postedRide = jsonRideObject.toString();
 
-		mvcResultActions = performRequestAndExpectJson(post("/rides")
+		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(postedRide))
 			.andExpect(jsonPath("$.origin").value("Tampere"))
@@ -180,46 +180,49 @@ public class KimppakyytiApplicationTests {
 			.andExpect(jsonPath("$.departure").value(departure))
 			.andExpect(jsonPath("$.arrival").value(arrival));
 		
-		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		mvcResultActions = performJsonRequestAllRidesAndExpectJson();
 		checkRidesListLength(3);
-//		int listLength = 3;
-//		checkRidesListLength(listLength, departure, arrival);
+		checkDepartureAndArrival(0, departure, arrival);
 	}
 	
 	@Test
 	@Order(7)
 	public void deleteRideById() throws Exception {
-		MvcResult request = performRequestAndExpectJson(delete("/rides/{id}", 4L)).andReturn();
+		MvcResult request = performJsonRequestAndExpectJson(delete("/rides/{id}", 4L)).andReturn();
 		String content = request.getResponse().getContentAsString();
 		
 		Assert.assertTrue(content.equalsIgnoreCase("true"));
 		
-		mvcResultActions = performRequestAndExpectJson(get("/rides"));
+		mvcResultActions = performJsonRequestAllRidesAndExpectJson();
 		checkRidesListLength(2);
 	}
 	
 	@Test
 	@Order(8)
 	public void updateRide() throws Exception {
+		String departure = LocalDateTime.of(2020,7,3,13,55).toString();
+		String arrival = LocalDateTime.of(2020,9,3,14,25).toString();
+		
 		JSONObject jsonRideObject = new JSONObject();
 		
 		jsonRideObject.put("origin", "Turku");
 		jsonRideObject.put("destination", "Oulu");
 		jsonRideObject.put("price", 25.0);
-		jsonRideObject.put("departure", LocalDateTime.of(2020,9,3,13,55));
-		jsonRideObject.put("arrival", LocalDateTime.of(2020,9,3,14,25));
+		jsonRideObject.put("departure", departure);
+		jsonRideObject.put("arrival", arrival);
 		
 		String jsonRide = jsonRideObject.toString();
 		
-		performRequestAndExpectJson(put("/rides/{id}", 3L)
+		performJsonRequestAndExpectJson(put("/rides/{id}", 3L)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(jsonRide))
 			.andExpect(jsonPath("$.id").value("3"))
 			.andExpect(jsonPath("$.origin").value("Turku"))
 			.andExpect(jsonPath("$.destination").value("Oulu"))
 			.andExpect(jsonPath("$.price").value("25.0"))
-			.andExpect(jsonPath("$.departure").value(LocalDateTime.of(2020,9,3,13,55).toString()))
-			.andExpect(jsonPath("$.arrival").value(LocalDateTime.of(2020,9,3,14,25).toString()));
+			.andExpect(jsonPath("$.departure").value(departure))
+			.andExpect(jsonPath("$.arrival").value(arrival));
+
 	}
 	
 	@Test
@@ -228,7 +231,7 @@ public class KimppakyytiApplicationTests {
 		JSONObject newDriver = new JSONObject();
 		newDriver.put("nickName", "Tontsa");
 		
-		performRequestAndExpectJson(post("/register")
+		performJsonRequestAndExpectJson(post("/register")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(newDriver.toString()))
 			.andExpect(jsonPath("$.id").value("6"))
@@ -253,7 +256,11 @@ public class KimppakyytiApplicationTests {
 //		
 //	}
 	
-	private ResultActions performRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
+	private ResultActions performJsonRequestAllRidesAndExpectJson() throws Exception {
+		return performJsonRequestAndExpectJson(get("/rides"));
+	}
+	
+	private ResultActions performJsonRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
 		return mockMvc.perform(request)
 				.andDo(print())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
@@ -262,5 +269,11 @@ public class KimppakyytiApplicationTests {
 	private void checkRidesListLength(int length) throws Exception {
 		mvcResultActions
 		.andExpect(jsonPath("$.totalElements", is(length)));
+	}
+	
+	private void checkDepartureAndArrival(int index, String departure, String arrival) throws Exception {
+		mvcResultActions
+		.andExpect(jsonPath("$.content[" + index + "].departure").value(departure))
+		.andExpect(jsonPath("$.content[" + index + "].arrival").value(arrival));
 	}
 }
