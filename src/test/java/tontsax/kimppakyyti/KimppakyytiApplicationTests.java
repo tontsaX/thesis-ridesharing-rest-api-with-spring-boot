@@ -110,15 +110,15 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(3)
 	public void getRidesByOrigin() throws Exception {
-		performJsonRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
-		.andExpect(jsonPath("$.length()", is(2)));
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
+								.andExpect(jsonPath("$.length()", is(2)));
 	}
 	
 	@Test
 	@Order(4)
 	public void getRidesByDestination() throws Exception {
-		performJsonRequestAndExpectJson(get("/rides/to{destination}", "Helsinki"))
-		.andExpect(jsonPath("$.length()", is(1)));
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/to{destination}", "Helsinki"))
+								.andExpect(jsonPath("$.length()", is(1)));
 	}
 	
 	@Test
@@ -128,15 +128,15 @@ public class KimppakyytiApplicationTests {
 		String arrival = LocalDateTime.of(2020, 9, 3, 14, 25).toString();
 		
 		// ride with id 3 has been updated at this point
-		performJsonRequestAndExpectJson(get("/rides/departure").param("departure", departure))
-		.andExpect(jsonPath("$.length()", is(1)))
-		.andExpect(jsonPath("$[0].id").value(3L))
-		.andExpect(jsonPath("$[0].departure").value(departure));
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/departure").param("departure", departure))
+								.andExpect(jsonPath("$.length()", is(1)))
+								.andExpect(jsonPath("$[0].id").value(3L))
+								.andExpect(jsonPath("$[0].departure").value(departure));
 		
-		performJsonRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
-		.andExpect(jsonPath("$.length()", is(1)))
-		.andExpect(jsonPath("$[0].id").value(3L))
-		.andExpect(jsonPath("$[0].arrival").value(arrival));
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
+								.andExpect(jsonPath("$.length()", is(1)))
+								.andExpect(jsonPath("$[0].id").value(3L))
+								.andExpect(jsonPath("$[0].arrival").value(arrival));
 	}
 	
 	@Test
@@ -153,12 +153,12 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	private void requestRideById(Long id, String origin, String destination) throws Exception {
-		performJsonRequestAndExpectJson(get("/rides/{id}", id))
-			.andExpect(jsonPath("$.id").value(id.toString()))	
-			.andExpect(jsonPath("$.origin").value(origin))
-			.andExpect(jsonPath("$.destination").value(destination))
-			.andExpect(jsonPath("$.departure").value("2020-09-22T14:14"))
-			.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15"));
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/{id}", id))
+								.andExpect(jsonPath("$.id").value(id.toString()))	
+								.andExpect(jsonPath("$.origin").value(origin))
+								.andExpect(jsonPath("$.destination").value(destination))
+								.andExpect(jsonPath("$.departure").value("2020-09-22T14:14"))
+								.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15"));
 	}
 	
 	@Test
@@ -167,16 +167,16 @@ public class KimppakyytiApplicationTests {
 		String departure = LocalDateTime.of(2020, 8, 24, 18, 45).toString();
 		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
 
-		JSONObject jsonRideObject = createJsonRide("Tampere", "Oulu",
+		JSONObject jsonRide = createJsonRide("Tampere", "Oulu",
 												   25.0, account1.getId(),
 												   departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
-			.content(jsonRideObject.toString()))
-			.andExpect(jsonPath("$.origin").value("Tampere"))
-			.andExpect(jsonPath("$.destination").value("Oulu"))
-			.andExpect(jsonPath("$.departure").value(departure))
-			.andExpect(jsonPath("$.arrival").value(arrival));
+								.content(jsonRide.toString()))
+								.andExpect(jsonPath("$.origin").value("Tampere"))
+								.andExpect(jsonPath("$.destination").value("Oulu"))
+								.andExpect(jsonPath("$.departure").value(departure))
+								.andExpect(jsonPath("$.arrival").value(arrival));
 		
 		mvcResultActions = performJsonRequestAllRidesAndExpectJson();
 		checkRidesListLength(3);
@@ -201,25 +201,18 @@ public class KimppakyytiApplicationTests {
 		String departure = LocalDateTime.of(2020,7,3,13,55).toString();
 		String arrival = LocalDateTime.of(2020,9,3,14,25).toString();
 		
-		JSONObject jsonRideObject = new JSONObject();
+		JSONObject jsonRide = createJsonRide("Turku", "Oulu",
+											 25.0, 0L,
+											 departure, arrival);
 		
-		jsonRideObject.put("origin", "Turku");
-		jsonRideObject.put("destination", "Oulu");
-		jsonRideObject.put("price", 25.0);
-		jsonRideObject.put("departure", departure);
-		jsonRideObject.put("arrival", arrival);
-		
-		String jsonRide = jsonRideObject.toString();
-		
-		performJsonRequestAndExpectJson(put("/rides/{id}", 3L)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(jsonRide))
-			.andExpect(jsonPath("$.id").value("3"))
-			.andExpect(jsonPath("$.origin").value("Turku"))
-			.andExpect(jsonPath("$.destination").value("Oulu"))
-			.andExpect(jsonPath("$.price").value("25.0"))
-			.andExpect(jsonPath("$.departure").value(departure))
-			.andExpect(jsonPath("$.arrival").value(arrival));
+		mvcResultActions = performJsonRequestAndExpectJson(put("/rides/{id}", 3L)
+								.content(jsonRide.toString()))
+								.andExpect(jsonPath("$.id").value("3"))
+								.andExpect(jsonPath("$.origin").value("Turku"))
+								.andExpect(jsonPath("$.destination").value("Oulu"))
+								.andExpect(jsonPath("$.price").value("25.0"))
+								.andExpect(jsonPath("$.departure").value(departure))
+								.andExpect(jsonPath("$.arrival").value(arrival));
 	}
 	
 	@Test
@@ -228,11 +221,10 @@ public class KimppakyytiApplicationTests {
 		JSONObject newDriver = new JSONObject();
 		newDriver.put("nickName", "Tontsa");
 		
-		performJsonRequestAndExpectJson(post("/register")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(newDriver.toString()))
-			.andExpect(jsonPath("$.id").value("6"))
-			.andExpect(jsonPath("$.nickName").value("Tontsa"));
+		mvcResultActions = performJsonRequestAndExpectJson(post("/register")
+								.content(newDriver.toString()))
+								.andExpect(jsonPath("$.id").value("6"))
+								.andExpect(jsonPath("$.nickName").value("Tontsa"));
 	}
 	
 //	
