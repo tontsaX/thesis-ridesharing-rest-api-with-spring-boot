@@ -144,8 +144,21 @@ public class KimppakyytiApplicationTests {
 	
 	@Test
 	@Order(14)
-	public void getRidesOfTheSecondPage() {
+	public void getRidesOfTheSecondPage() throws Exception {
+		addRidesToDatabase();
+		mvcResultActions = performJsonRequestAndExpectJson(get("/rides").param("page", "1"));
 		
+		checkRidesListLength(4);
+	}
+	
+	private void addRidesToDatabase() throws Exception {
+		for(int i = 0; i < 12; i++) {
+			Ride ride = new Ride("Oulu", "Tampere", 30.0);
+			ride.setDeparture(LocalDateTime.of(2020,9,12,14,14).toString());
+			ride.setArrival(LocalDateTime.of(2020,9,13,00,14).toString());
+			
+			rideRepository.save(ride);
+		}
 	}
 	
 	@Test
@@ -262,7 +275,7 @@ public class KimppakyytiApplicationTests {
 	
 	private void checkRidesListLength(int length) throws Exception {
 		mvcResultActions
-		.andExpect(jsonPath("$.totalElements", is(length)));
+		.andExpect(jsonPath("$.numberOfElements", is(length)));
 	}
 	
 	private void checkDepartureAndArrival(int index, String departure, String arrival) throws Exception {
