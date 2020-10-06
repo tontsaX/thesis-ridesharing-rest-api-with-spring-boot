@@ -1,7 +1,5 @@
 package tontsax.kimppakyyti.logic;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,35 +35,31 @@ public class AppController {
 	
 	@GetMapping("/rides")
 	public Page<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
-		Pageable sorter = PageRequest.of(page,10,Sort.by("departure").ascending());
-		return rideDao.findAll(sorter);
+		return rideDao.findAll(getNextPageOrderByDeparture(page));
 	}
 	
 	@GetMapping("/rides/from{origin}")
-	public List<Ride> getRidesByOrigin(@PathVariable String origin) {
-		return rideDao.findByOrigin(origin);
+	public List<Ride> getRidesByOrigin(@PathVariable String origin, @RequestParam(defaultValue = "0") Integer page) {
+		return rideDao.findByOrigin(origin, getNextPageOrderByDeparture(page));
 	}
 	
 	@GetMapping("/rides/to{destination}")
-	public List<Ride> getRidesByDestination(@PathVariable String destination) {
-		return rideDao.findByDestination(destination);
+	public List<Ride> getRidesByDestination(@PathVariable String destination, @RequestParam(defaultValue = "0") Integer page) {
+		return rideDao.findByDestination(destination, getNextPageOrderByDeparture(page));
 	}
 	
 	@GetMapping("/rides/departure")
-	public List<Ride> getRidesByDeparture(@RequestParam String departure) {
-		return rideDao.findByDepartureContaining(trimToDate(departure));
+	public List<Ride> getRidesByDeparture(@RequestParam String departure, @RequestParam(defaultValue = "0") Integer page) {
+		return rideDao.findByDepartureContaining(departure, getNextPageOrderByDeparture(page));
 	}
 	
 	@GetMapping("/rides/arrival")
-	public List<Ride> getRidesByArrival(@RequestParam String arrival) {
-		return rideDao.findByArrivalContaining(trimToDate(arrival));
+	public List<Ride> getRidesByArrival(@RequestParam String arrival, @RequestParam(defaultValue = "0") Integer page) {
+		return rideDao.findByArrivalContaining(arrival, getNextPageOrderByDeparture(page));
 	}
 	
-	private String trimToDate(String localDateTime) {
-		LocalDateTime dateTime = LocalDateTime.parse(localDateTime);
-		LocalDate date = LocalDate.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth());
-		String trimmedDate = date.toString();
-		return trimmedDate;
+	private Pageable getNextPageOrderByDeparture(Integer page) {
+		return PageRequest.of(page,10,Sort.by("departure").ascending());
 	}
 	
 	@GetMapping("/rides/{id}")
@@ -75,9 +69,9 @@ public class AppController {
 	
 	@PostMapping("/rides")
 	public Ride postRide(@RequestBody String rideJson) throws JSONException {
+		Ride newRide = new Ride();
 		JSONObject receivedJson = new JSONObject(rideJson);
 		
-		Ride newRide = new Ride();
 		newRide.setOrigin(receivedJson.getString("origin"));
 		newRide.setDestination(receivedJson.getString("destination"));
 		newRide.setPrice(receivedJson.getDouble("price"));
@@ -96,9 +90,8 @@ public class AppController {
 	
 	@PutMapping("/rides/{id}")
 	public Ride updateRide(@RequestBody String rideJson, @PathVariable Long id) throws JSONException {
-		JSONObject receivedJson = new JSONObject(rideJson);
-		
 		Ride updatedRide = rideDao.getOne(id);
+		JSONObject receivedJson = new JSONObject(rideJson);
 		
 		updatedRide.setOrigin(receivedJson.getString("origin"));
 		updatedRide.setDestination(receivedJson.getString("destination"));

@@ -75,16 +75,18 @@ public class KimppakyytiApplicationTests {
 			Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
 			Ride ride2 = new Ride("Turku", "Tampere", 23.5);
 			
-			LocalDateTime departure = LocalDateTime.of(2020, 9, 22, 14, 14);
-			LocalDateTime arrival = LocalDateTime.of(2020, 9, 23, 15, 15);
+			LocalDateTime departure1 = LocalDateTime.of(2020, 9, 22, 14, 14);
+			LocalDateTime departure2 = LocalDateTime.of(2020, 9, 22, 13, 14);
+			LocalDateTime arrival1 = LocalDateTime.of(2020, 9, 23, 15, 15);
+			LocalDateTime arrival2 = LocalDateTime.of(2020, 9, 23, 14, 15);
 			
-			ride1.setDeparture(departure.toString());
-			ride1.setArrival(arrival.toString());
+			ride1.setDeparture(departure1.toString());
+			ride1.setArrival(arrival1.toString());
 			ride1.setDriver(accountRepository.getOne(1L));
 			
 			ride2.setDriver(accountRepository.getOne(2L));
-			ride2.setDeparture(departure.toString());
-			ride2.setArrival(arrival.toString());
+			ride2.setDeparture(departure2.toString());
+			ride2.setArrival(arrival2.toString());
 
 			rideRepository.save(ride1);
 			rideRepository.save(ride2);
@@ -111,7 +113,8 @@ public class KimppakyytiApplicationTests {
 	@Order(3)
 	public void getRidesByOrigin() throws Exception {
 		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
-								.andExpect(jsonPath("$.length()", is(2)));
+								.andExpect(jsonPath("$.length()", is(2)))
+								.andExpect(jsonPath("$[0].departure").value("2020-09-22T13:14"));
 	}
 	
 	@Test
@@ -148,17 +151,18 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(5)
 	public void getRideById() throws Exception {
-		requestRideById(3L, "Turku", "Helsinki");
-		requestRideById(4L, "Turku", "Tampere");
+		requestRideById(3L, "Turku", "Helsinki", "2020-09-22T14:14", "2020-09-23T15:15");
+		requestRideById(4L, "Turku", "Tampere", "2020-09-22T13:14", "2020-09-23T14:15");
 	}
 	
-	private void requestRideById(Long id, String origin, String destination) throws Exception {
+	private void requestRideById(Long id, String origin, String destination,
+								 	String departure, String arrival) throws Exception {
 		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/{id}", id))
 								.andExpect(jsonPath("$.id").value(id.toString()))	
 								.andExpect(jsonPath("$.origin").value(origin))
 								.andExpect(jsonPath("$.destination").value(destination))
-								.andExpect(jsonPath("$.departure").value("2020-09-22T14:14"))
-								.andExpect(jsonPath("$.arrival").value("2020-09-23T15:15"));
+								.andExpect(jsonPath("$.departure").value(departure))
+								.andExpect(jsonPath("$.arrival").value(arrival));
 	}
 	
 	@Test
