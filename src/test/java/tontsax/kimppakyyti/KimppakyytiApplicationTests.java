@@ -1,6 +1,7 @@
 package tontsax.kimppakyyti;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -189,6 +190,7 @@ public class KimppakyytiApplicationTests {
 												   departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
+								.with(csrf())
 								.content(jsonRide.toString()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
@@ -203,7 +205,7 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(7)
 	public void deleteRideById() throws Exception {
-		MvcResult request = performJsonRequestAndExpectJson(delete("/rides/{id}", 4L)).andReturn();
+		MvcResult request = performJsonRequestAndExpectJson(delete("/rides/{id}", 4L).with(csrf())).andReturn();
 		String content = request.getResponse().getContentAsString();
 		
 		Assert.assertTrue(content.equalsIgnoreCase("true"));
@@ -223,6 +225,7 @@ public class KimppakyytiApplicationTests {
 											 departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(put("/rides/{id}", 3L)
+								.with(csrf())
 								.content(jsonRide.toString()))
 								.andExpect(jsonPath("$.id").value("3"))
 								.andExpect(jsonPath("$.origin").value("Turku"))
@@ -239,6 +242,7 @@ public class KimppakyytiApplicationTests {
 		newDriver.put("nickName", "Tontsa");
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/register")
+								.with(csrf())
 								.content(newDriver.toString()))
 								.andExpect(jsonPath("$.id").value("6"))
 								.andExpect(jsonPath("$.nickName").value("Tontsa"));
