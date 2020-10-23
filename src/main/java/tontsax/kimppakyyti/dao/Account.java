@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 public class Account extends AbstractPersistable<Long> {
 
 	private String nickName;
+	private String password;
 	private int rankingFive;
 	private LocalDateTime registered = LocalDateTime.now();
 	
