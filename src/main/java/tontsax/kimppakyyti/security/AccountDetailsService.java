@@ -3,6 +3,7 @@ package tontsax.kimppakyyti.security;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,8 +33,8 @@ public class AccountDetailsService implements UserDetailsService {
 				true,
 				true,
 				true,
-				null);
-//				Arrays.asList(new SimpleGrantedAuthority("USER")));
+//				null);
+				Arrays.asList(new SimpleGrantedAuthority("USER")));
 	}
 
 }
