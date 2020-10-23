@@ -190,8 +190,8 @@ public class KimppakyytiApplicationTests {
 												   departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
-								.with(csrf())
-								.content(jsonRide.toString()))
+//								.with(csrf())
+								.content(jsonRide.toString()).with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
 								.andExpect(jsonPath("$.departure").value(departure))
