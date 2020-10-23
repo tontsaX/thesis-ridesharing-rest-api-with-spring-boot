@@ -240,6 +240,7 @@ public class KimppakyytiApplicationTests {
 	public void registerToApp() throws Exception {
 		JSONObject newDriver = new JSONObject();
 		newDriver.put("nickName", "Tontsa");
+		newDriver.put("password", "Salasana");
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/register")
 								.with(csrf())

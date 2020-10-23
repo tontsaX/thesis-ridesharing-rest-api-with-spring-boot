@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +35,9 @@ public class AppController {
 	
 	@Autowired
 	private AccountDao accountDao;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	@GetMapping("/rides")
 	public Page<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
@@ -69,17 +75,26 @@ public class AppController {
 	
 	@PostMapping("/rides")
 	public Ride postRide(@RequestBody String rideJson) throws JSONException {
-		Ride newRide = new Ride();
-		JSONObject receivedJson = new JSONObject(rideJson);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
-		newRide.setOrigin(receivedJson.getString("origin"));
-		newRide.setDestination(receivedJson.getString("destination"));
-		newRide.setPrice(receivedJson.getDouble("price"));
-		newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
-		newRide.setDeparture(receivedJson.getString("departure"));
-		newRide.setArrival(receivedJson.getString("arrival"));
+		if(auth != null) {
+//			Account account = accountDao.findByNickName(auth.getName());
+			
+			Ride newRide = new Ride();
+			JSONObject receivedJson = new JSONObject(rideJson);
+			
+			newRide.setOrigin(receivedJson.getString("origin"));
+			newRide.setDestination(receivedJson.getString("destination"));
+			newRide.setPrice(receivedJson.getDouble("price"));
+//			newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
+			newRide.setDriver(accountDao.findByNickName(auth.getName()));
+			newRide.setDeparture(receivedJson.getString("departure"));
+			newRide.setArrival(receivedJson.getString("arrival"));
+			
+			return rideDao.save(newRide);
+		}
 		
-		return rideDao.save(newRide);
+		return null;
 	}
 	
 	@DeleteMapping("/rides/{id}")
@@ -108,6 +123,7 @@ public class AppController {
 		
 		Account newAccount = new Account();
 		newAccount.setNickName(receivedJson.getString("nickName"));
+		newAccount.setPassword(passwordEncoder.encode(receivedJson.getString("password")));
 		
 		return accountDao.save(newAccount);
 	}
