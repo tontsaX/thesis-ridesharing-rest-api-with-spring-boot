@@ -23,6 +23,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		
 		httpSecurity.authorizeRequests()
 					.antMatchers(HttpMethod.GET, "/rides/**").permitAll()
+					.antMatchers("/register").permitAll()
 					.anyRequest().authenticated().and()
 					.formLogin().permitAll().and()
 					.logout().permitAll();

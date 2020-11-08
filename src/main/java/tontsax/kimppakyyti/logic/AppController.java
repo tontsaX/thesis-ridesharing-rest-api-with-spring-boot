@@ -39,6 +39,7 @@ public class AppController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	
 	@GetMapping("/rides")
 	public Page<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
 		return rideDao.findAll(getNextPageOrderByDeparture(page));
@@ -116,6 +117,15 @@ public class AppController {
 
 		return rideDao.save(updatedRide);
 	}
+	
+//	@GetMapping("/rides/register")
+//	public String manualTest() {
+//		Account decimus = new Account();
+//		decimus.setNickName("Decimus");
+//		decimus.setPassword(passwordEncoder.encode("password"));
+//		accountDao.save(decimus);
+//		return "redirect:/rides";
+//	}
 	
 	@PostMapping("/register")
 	public Account registerToApp(@RequestBody String accountJson) throws JSONException {
