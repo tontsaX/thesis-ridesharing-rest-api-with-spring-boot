@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import tontsax.kimppakyyti.dao.Account;
 import tontsax.kimppakyyti.dao.AccountDao;
@@ -49,6 +50,9 @@ import tontsax.kimppakyyti.dao.RideDao;
 public class KimppakyytiApplicationTests {
 	
 	private static boolean databasePopulated = false;
+	private static Account account1, account2;
+	private static String accountAddress = "/account";
+	private static String ridesAddress = "/rides";
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -59,12 +63,7 @@ public class KimppakyytiApplicationTests {
 	@Autowired
 	private AccountDao accountRepository;
 	
-	private static Account account1, account2;
-	
 	private ResultActions mvcResultActions;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 	
 	@BeforeEach
 	public void populateDatabase() {
@@ -76,7 +75,6 @@ public class KimppakyytiApplicationTests {
 			account1.setNickName("Decimus");
 			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			account1.setPassword(passwordEncoder.encode("password"));
-//			account1.setPassword("password");
 			account2.setNickName("Tilemar");
 			
 			accountRepository.save(account1);
@@ -108,7 +106,8 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(1)
 	public void checkConnection() throws Exception {
-		mockMvc.perform(get("/rides"))
+//		mockMvc.perform(get("/rides"))
+		mockMvc.perform(get(ridesAddress))
 				.andExpect(status().isOk());
 	}
 	
@@ -122,7 +121,7 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(3)
 	public void getRidesByOrigin() throws Exception {
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/from{origin}", "Turku"))
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/from{origin}", "Turku"))
 								.andExpect(jsonPath("$.length()", is(2)))
 								.andExpect(jsonPath("$[0].departure").value("2020-09-22T13:14"));
 	}
@@ -130,7 +129,7 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(4)
 	public void getRidesByDestination() throws Exception {
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/to{destination}", "Helsinki"))
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/to{destination}", "Helsinki"))
 								.andExpect(jsonPath("$.length()", is(1)));
 	}
 	
@@ -141,12 +140,12 @@ public class KimppakyytiApplicationTests {
 		String arrival = LocalDateTime.of(2020, 9, 3, 14, 25).toString();
 		
 		// ride with id 3 has been updated at this point
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/departure").param("departure", departure))
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/departure").param("departure", departure))
 								.andExpect(jsonPath("$.length()", is(1)))
 								.andExpect(jsonPath("$[0].id").value(3L))
 								.andExpect(jsonPath("$[0].departure").value(departure));
 		
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/arrival").param("arrival", arrival))
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/arrival").param("arrival", arrival))
 								.andExpect(jsonPath("$.length()", is(1)))
 								.andExpect(jsonPath("$[0].id").value(3L))
 								.andExpect(jsonPath("$[0].arrival").value(arrival));
@@ -156,19 +155,9 @@ public class KimppakyytiApplicationTests {
 	@Order(14)
 	public void getRidesOfTheSecondPage() throws Exception {
 		addRidesToDatabase();
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides").param("page", "1"));
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress).param("page", "1"));
 		
 		checkRidesListLength(4);
-	}
-	
-	private void addRidesToDatabase() throws Exception {
-		for(int i = 0; i < 12; i++) {
-			Ride ride = new Ride("Oulu", "Tampere", 30.0);
-			ride.setDeparture(LocalDateTime.of(2020,9,12,14,14).toString());
-			ride.setArrival(LocalDateTime.of(2020,9,13,00,14).toString());
-			
-			rideRepository.save(ride);
-		}
 	}
 	
 	@Test
@@ -178,16 +167,6 @@ public class KimppakyytiApplicationTests {
 		requestRideById(4L, "Turku", "Tampere", "2020-09-22T13:14", "2020-09-23T14:15");
 	}
 	
-	private void requestRideById(Long id, String origin, String destination,
-								 	String departure, String arrival) throws Exception {
-		mvcResultActions = performJsonRequestAndExpectJson(get("/rides/{id}", id))
-								.andExpect(jsonPath("$.id").value(id.toString()))	
-								.andExpect(jsonPath("$.origin").value(origin))
-								.andExpect(jsonPath("$.destination").value(destination))
-								.andExpect(jsonPath("$.departure").value(departure))
-								.andExpect(jsonPath("$.arrival").value(arrival));
-	}
-	
 	@Test
 	@Order(6)
 	public void postRide() throws Exception {
@@ -195,12 +174,12 @@ public class KimppakyytiApplicationTests {
 		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
 
 		JSONObject jsonRide = createJsonRide("Tampere", "Oulu",
-												   25.0, account1.getId(),
-												   departure, arrival);
+											 25.0, account1.getId(),
+											 departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 									.content(jsonRide.toString())
-									.with(user("Decimus").password("password"))
+									.with(credentialsOf(account1))
 									.with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
@@ -234,7 +213,7 @@ public class KimppakyytiApplicationTests {
 											 25.0, 0L,
 											 departure, arrival);
 		
-		mvcResultActions = performJsonRequestAndExpectJson(put("/rides/{id}", 3L)
+		mvcResultActions = performJsonRequestAndExpectJson(put(ridesAddress + "/{id}", 3L)
 								.with(csrf())
 								.content(jsonRide.toString()))
 								.andExpect(jsonPath("$.id").value("3"))
@@ -286,8 +265,29 @@ public class KimppakyytiApplicationTests {
 //		
 //	}
 	
+	private void addRidesToDatabase() throws Exception {
+		for(int i = 0; i < 12; i++) {
+			Ride ride = new Ride("Oulu", "Tampere", 30.0);
+			ride.setDeparture(LocalDateTime.of(2020,9,12,14,14).toString());
+			ride.setArrival(LocalDateTime.of(2020,9,13,00,14).toString());
+			
+			rideRepository.save(ride);
+		}
+	}
+	
+	private void requestRideById(Long id, String origin, String destination,
+		 	String departure, String arrival) throws Exception {
+
+		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/{id}", id))
+				.andExpect(jsonPath("$.id").value(id.toString()))	
+				.andExpect(jsonPath("$.origin").value(origin))
+				.andExpect(jsonPath("$.destination").value(destination))
+				.andExpect(jsonPath("$.departure").value(departure))
+				.andExpect(jsonPath("$.arrival").value(arrival));
+	}
+	
 	private ResultActions performJsonRequestAllRidesAndExpectJson() throws Exception {
-		return performJsonRequestAndExpectJson(get("/rides"));
+		return performJsonRequestAndExpectJson(get(ridesAddress));
 	}
 	
 	private ResultActions performJsonRequestAndExpectJson(MockHttpServletRequestBuilder request) throws Exception {
@@ -303,13 +303,14 @@ public class KimppakyytiApplicationTests {
 	
 	private void checkDepartureAndArrival(int index, String departure, String arrival) throws Exception {
 		mvcResultActions
-		.andExpect(jsonPath("$.content[" + index + "].departure").value(departure))
-		.andExpect(jsonPath("$.content[" + index + "].arrival").value(arrival));
+			.andExpect(jsonPath("$.content[" + index + "].departure").value(departure))
+			.andExpect(jsonPath("$.content[" + index + "].arrival").value(arrival));
 	}
 	
 	private static JSONObject createJsonRide(String origin, String destination,
 									  double price, long driverId,
 									  String departure, String arrival) throws JSONException {
+		
 		JSONObject jsonRideObject = new JSONObject();
 		
 		jsonRideObject.put("origin", origin);
@@ -320,5 +321,10 @@ public class KimppakyytiApplicationTests {
 		jsonRideObject.put("arrival", arrival);
 		
 		return jsonRideObject;
+		
+	}
+	
+	private static RequestPostProcessor credentialsOf(Account user) {
+		return user(user.getNickName()).password(user.getPassword());
 	}
 }
