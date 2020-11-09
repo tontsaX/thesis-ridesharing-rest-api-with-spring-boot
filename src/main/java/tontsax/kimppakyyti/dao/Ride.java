@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 public class Ride extends AbstractPersistable<Long> {
+	public static Ride NO_AUTHORITY = new Ride("No authority to modify rides.");
 	
 	private String origin, destination;
 	private double price;
@@ -38,6 +39,10 @@ public class Ride extends AbstractPersistable<Long> {
 	@ManyToMany(mappedBy = "reservedRides")
 	@JsonManagedReference
 	private List<Account> passengers = new ArrayList<>();
+	
+	public Ride(String origin) {
+		this.origin = origin;
+	}
 	
 	public Ride(String origin, String destination, Double price) {
 		this.origin = origin;

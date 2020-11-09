@@ -95,7 +95,8 @@ public class AppController {
 			return rideDao.save(newRide);
 		}
 		
-		return null;
+//		return null;
+		return Ride.NO_AUTHORITY;
 	}
 	
 	@DeleteMapping("/rides/{id}")
