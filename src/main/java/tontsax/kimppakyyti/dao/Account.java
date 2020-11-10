@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 public class Account extends AbstractPersistable<Long> {
+	public static Account EMPTY = new Account();
 
 	private String nickName;
 	private String password;

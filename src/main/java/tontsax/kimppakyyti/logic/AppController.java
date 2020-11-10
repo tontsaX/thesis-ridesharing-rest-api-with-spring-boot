@@ -79,24 +79,20 @@ public class AppController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if(auth != null) {
-//			Account account = accountDao.findByNickName(auth.getName());
-			
 			Ride newRide = new Ride();
 			JSONObject receivedJson = new JSONObject(rideJson);
 			
 			newRide.setOrigin(receivedJson.getString("origin"));
 			newRide.setDestination(receivedJson.getString("destination"));
 			newRide.setPrice(receivedJson.getDouble("price"));
-//			newRide.setDriver(accountDao.getOne(receivedJson.getLong("driverId")));
 			newRide.setDriver(accountDao.findByNickName(auth.getName()));
 			newRide.setDeparture(receivedJson.getString("departure"));
 			newRide.setArrival(receivedJson.getString("arrival"));
 			
 			return rideDao.save(newRide);
 		}
-		
-//		return null;
-		return Ride.NO_AUTHORITY;
+
+		return Ride.EMPTY;
 	}
 	
 	@DeleteMapping("/rides/{id}")
@@ -118,15 +114,6 @@ public class AppController {
 
 		return rideDao.save(updatedRide);
 	}
-	
-//	@GetMapping("/rides/register")
-//	public String manualTest() {
-//		Account decimus = new Account();
-//		decimus.setNickName("Decimus");
-//		decimus.setPassword(passwordEncoder.encode("password"));
-//		accountDao.save(decimus);
-//		return "redirect:/rides";
-//	}
 	
 	@PostMapping("/register")
 	public Account registerToApp(@RequestBody String accountJson) throws JSONException {

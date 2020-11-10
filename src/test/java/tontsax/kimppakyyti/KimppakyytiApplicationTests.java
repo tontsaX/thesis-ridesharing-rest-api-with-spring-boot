@@ -180,6 +180,7 @@ public class KimppakyytiApplicationTests {
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 									.content(jsonRide.toString())
 									.with(credentialsOf(account1))
+//									.with(user("Decimus").password("salasana")) // toimii myös väärällä salasanalla
 									.with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))

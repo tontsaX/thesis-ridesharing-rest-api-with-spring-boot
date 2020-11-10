@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 public class Ride extends AbstractPersistable<Long> {
-	public static Ride NO_AUTHORITY = new Ride("No authority to modify rides.");
+	public static Ride EMPTY = new Ride();
 	
 	private String origin, destination;
 	private double price;
