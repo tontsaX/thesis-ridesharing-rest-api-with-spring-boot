@@ -192,7 +192,7 @@ public class KimppakyytiApplicationTests {
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 									.content(jsonRide.toString())
-									.with(luke()) // user does not need to exists
+									.with(account()) // user does not need to exists
 									.with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
@@ -326,8 +326,8 @@ public class KimppakyytiApplicationTests {
 		
 	}
 	
-	private static RequestPostProcessor luke() {
-		return user("Luke").password("password"); // käyttää koodattua salasanaa
+	private static RequestPostProcessor account() {
+		return user("Decimus").password("password"); // käyttää koodattua salasanaa
 																	  // ei menisi läpi formLogin() kanssa
 	}
 }
