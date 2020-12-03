@@ -1,8 +1,10 @@
 package tontsax.kimppakyyti;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -238,7 +240,7 @@ public class KimppakyytiApplicationTests {
 	
 	@Test
 	@Order(9)
-	public void registerToApp() throws Exception {
+	public void registerAndLogin() throws Exception {
 		JSONObject newDriver = new JSONObject();
 		newDriver.put("nickName", "Tontsa");
 		newDriver.put("password", "Salasana");
@@ -248,21 +250,29 @@ public class KimppakyytiApplicationTests {
 								.content(newDriver.toString()))
 								.andExpect(jsonPath("$.id").value("6"))
 								.andExpect(jsonPath("$.nickName").value("Tontsa"));
+		
+		mockMvc.perform(formLogin("/login").user(newDriver.getString("nickName")).password(newDriver.getString("password")))
+				.andExpect(authenticated().withUsername(newDriver.getString("nickName")));
 	}
 	
-//	
+	
 //	@Test
 //	@Order(10)
 //	public void loginToAccount() throws Exception {
+//		// Toimii
+//		// testi ei mene läpi, jos antaa väärän käyttäjänimen tai salasanan
+//		mockMvc.perform(formLogin("/login").user(account1.getNickName()).password("password"))
+////				.andExpect(authenticated().withUsername("Tontsa"));
+//				.andExpect(authenticated().withUsername(account1.getNickName()));
 //		
-//		MultiValueMap <String, String> parameters = new LinkedMultiValueMap<>();
-//		parameters.add("username", "Decimus");
-//		parameters.add("password", "password");
-//		
-//		mockMvc.perform(post("/login")
-//						.params(parameters)
-//						.with(csrf()))
-//				.andDo(print()).andReturn();
+////		MultiValueMap <String, String> parameters = new LinkedMultiValueMap<>();
+////		parameters.add("username", "Decimus");
+////		parameters.add("password", "password");
+////		
+////		mockMvc.perform(post("/login")
+////						.params(parameters)
+////						.with(csrf()))
+////				.andDo(print()).andReturn();
 //	}
 //	
 //	@Test
