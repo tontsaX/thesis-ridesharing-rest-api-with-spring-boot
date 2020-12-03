@@ -152,15 +152,15 @@ public class KimppakyytiApplicationTests {
 		String departure = LocalDateTime.of(2020, 7, 3, 13, 55).toString();
 		String arrival = LocalDateTime.of(2020, 9, 3, 14, 25).toString();
 		
-		// ride with id 3 has been updated at this point
+		// ride with id 5 has been updated at this point
 		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/departure").param("departure", departure))
 								.andExpect(jsonPath("$.length()", is(1)))
-								.andExpect(jsonPath("$[0].id").value(3L))
+								.andExpect(jsonPath("$[0].id").value(5L))
 								.andExpect(jsonPath("$[0].departure").value(departure));
 		
 		mvcResultActions = performJsonRequestAndExpectJson(get(ridesAddress + "/arrival").param("arrival", arrival))
 								.andExpect(jsonPath("$.length()", is(1)))
-								.andExpect(jsonPath("$[0].id").value(3L))
+								.andExpect(jsonPath("$[0].id").value(5L))
 								.andExpect(jsonPath("$[0].arrival").value(arrival));
 	}
 	
@@ -187,12 +187,11 @@ public class KimppakyytiApplicationTests {
 		String arrival = LocalDateTime.of(2020, 12, 25, 14, 25).toString();
 
 		JSONObject jsonRide = createJsonRide("Tampere", "Oulu",
-											 25.0, account1.getId(),
-											 departure, arrival);
+											 	25.0, departure, arrival);
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 									.content(jsonRide.toString())
-									.with(account()) // user does not need to exists
+									.with(testAccount()) // user does not need to exists
 									.with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
@@ -207,10 +206,8 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(7)
 	public void deleteRideById() throws Exception {
-		MvcResult request = performJsonRequestAndExpectJson(delete("/rides/{id}", 4L).with(csrf())).andReturn();
-		String content = request.getResponse().getContentAsString();
-		
-		Assert.assertTrue(content.equalsIgnoreCase("true"));
+		Assert.assertTrue(deleteRide(3L).equalsIgnoreCase("true")); // is posted ride by the test account
+		Assert.assertTrue(deleteRide(4L).equalsIgnoreCase("false")); // this ride is not test account's
 		
 		mvcResultActions = performJsonRequestAllRidesAndExpectJson();
 		checkRidesListLength(2);
@@ -223,13 +220,13 @@ public class KimppakyytiApplicationTests {
 		String arrival = LocalDateTime.of(2020,9,3,14,25).toString();
 		
 		JSONObject jsonRide = createJsonRide("Turku", "Oulu",
-											 25.0, 0L,
-											 departure, arrival);
+											 25.0, departure, arrival);
 		
-		mvcResultActions = performJsonRequestAndExpectJson(put(ridesAddress + "/{id}", 3L)
+		mvcResultActions = performJsonRequestAndExpectJson(put(accountAddress + ridesAddress + "/{id}", 5L)
+								.with(testAccount())
 								.with(csrf())
 								.content(jsonRide.toString()))
-								.andExpect(jsonPath("$.id").value("3"))
+								.andExpect(jsonPath("$.id").value("5"))
 								.andExpect(jsonPath("$.origin").value("Turku"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
 								.andExpect(jsonPath("$.price").value("25.0"))
@@ -298,6 +295,15 @@ public class KimppakyytiApplicationTests {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
 	
+	private String deleteRide(Long rideId) throws Exception {
+		MvcResult request = performJsonRequestAndExpectJson(delete(accountAddress + "/rides/{id}", rideId)
+															.with(testAccount())
+															.with(csrf()))
+							.andReturn();
+
+		return request.getResponse().getContentAsString();
+	}
+	
 	private void checkRidesListLength(int length) throws Exception {
 		mvcResultActions
 		.andExpect(jsonPath("$.numberOfElements", is(length)));
@@ -310,24 +316,20 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	private static JSONObject createJsonRide(String origin, String destination,
-									  double price, long driverId,
-									  String departure, String arrival) throws JSONException {
+									  			double price, String departure, String arrival) throws JSONException {
 		
 		JSONObject jsonRideObject = new JSONObject();
 		
 		jsonRideObject.put("origin", origin);
 		jsonRideObject.put("destination", destination);
 		jsonRideObject.put("price", price);
-		jsonRideObject.put("driverId", driverId);
 		jsonRideObject.put("departure", departure);
 		jsonRideObject.put("arrival", arrival);
 		
 		return jsonRideObject;
-		
 	}
 	
-	private static RequestPostProcessor account() {
-		return user("Decimus").password("password"); // käyttää koodattua salasanaa
-																	  // ei menisi läpi formLogin() kanssa
+	private static RequestPostProcessor testAccount() {
+		return user("Decimus").password("password");
 	}
 }

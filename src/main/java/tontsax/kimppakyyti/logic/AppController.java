@@ -95,24 +95,44 @@ public class AppController {
 		return Ride.EMPTY;
 	}
 	
-	@DeleteMapping("/rides/{id}")
+	@DeleteMapping("/account/rides/{id}")
 	public Boolean deleteRide(@PathVariable Long id) {
-		rideDao.deleteById(id); 
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if(auth != null) {
+			Long accountId = accountDao.findByNickName(auth.getName()).getId();
+			Ride deletedRide = rideDao.getOne(id);
+			
+			if(deletedRide.getDriver().getId() == accountId) {
+				rideDao.deleteById(id);
+			}
+		}
+		
 		return !rideDao.existsById(id);
 	}
 	
-	@PutMapping("/rides/{id}")
+	@PutMapping("/account/rides/{id}")
 	public Ride updateRide(@RequestBody String rideJson, @PathVariable Long id) throws JSONException {
-		Ride updatedRide = rideDao.getOne(id);
-		JSONObject receivedJson = new JSONObject(rideJson);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
-		updatedRide.setOrigin(receivedJson.getString("origin"));
-		updatedRide.setDestination(receivedJson.getString("destination"));
-		updatedRide.setPrice(receivedJson.getDouble("price"));
-		updatedRide.setDeparture(receivedJson.getString("departure"));
-		updatedRide.setArrival(receivedJson.getString("arrival"));
+		if(auth != null) {
+			Long accountId = accountDao.findByNickName(auth.getName()).getId();
+			Ride updatedRide = rideDao.getOne(id);
+			
+			if(updatedRide.getDriver().getId() == accountId) {
+				JSONObject receivedJson = new JSONObject(rideJson);
+				
+				updatedRide.setOrigin(receivedJson.getString("origin"));
+				updatedRide.setDestination(receivedJson.getString("destination"));
+				updatedRide.setPrice(receivedJson.getDouble("price"));
+				updatedRide.setDeparture(receivedJson.getString("departure"));
+				updatedRide.setArrival(receivedJson.getString("arrival"));
+				
+				return rideDao.save(updatedRide);
+			}
+		}
 
-		return rideDao.save(updatedRide);
+		return Ride.EMPTY;
 	}
 	
 	@PostMapping("/register")
