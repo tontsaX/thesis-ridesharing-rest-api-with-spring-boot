@@ -192,8 +192,7 @@ public class KimppakyytiApplicationTests {
 		
 		mvcResultActions = performJsonRequestAndExpectJson(post("/rides")
 									.content(jsonRide.toString())
-									.with(credentialsOf(account1))
-//									.with(user("Decimus").password("salasana")) // toimii myös väärällä salasanalla
+									.with(luke()) // user does not need to exists
 									.with(csrf()))
 								.andExpect(jsonPath("$.origin").value("Tampere"))
 								.andExpect(jsonPath("$.destination").value("Oulu"))
@@ -240,40 +239,21 @@ public class KimppakyytiApplicationTests {
 	
 	@Test
 	@Order(9)
-	public void registerAndLogin() throws Exception {
+	public void registerToApp() throws Exception {
 		JSONObject newDriver = new JSONObject();
 		newDriver.put("nickName", "Tontsa");
 		newDriver.put("password", "Salasana");
 		
-		mvcResultActions = performJsonRequestAndExpectJson(post("/register")
+		performJsonRequestAndExpectJson(post("/register")
 								.with(csrf())
 								.content(newDriver.toString()))
-								.andExpect(jsonPath("$.id").value("6"))
-								.andExpect(jsonPath("$.nickName").value("Tontsa"));
+								.andReturn();
 		
-		mockMvc.perform(formLogin("/login").user(newDriver.getString("nickName")).password(newDriver.getString("password")))
-				.andExpect(authenticated().withUsername(newDriver.getString("nickName")));
+		mockMvc.perform(formLogin("/login")
+						.user(newDriver.getString("nickName")).password(newDriver.getString("password")))
+			   .andExpect(authenticated().withUsername(newDriver.getString("nickName")));
 	}
-	
-	
-//	@Test
-//	@Order(10)
-//	public void loginToAccount() throws Exception {
-//		// Toimii
-//		// testi ei mene läpi, jos antaa väärän käyttäjänimen tai salasanan
-//		mockMvc.perform(formLogin("/login").user(account1.getNickName()).password("password"))
-////				.andExpect(authenticated().withUsername("Tontsa"));
-//				.andExpect(authenticated().withUsername(account1.getNickName()));
-//		
-////		MultiValueMap <String, String> parameters = new LinkedMultiValueMap<>();
-////		parameters.add("username", "Decimus");
-////		parameters.add("password", "password");
-////		
-////		mockMvc.perform(post("/login")
-////						.params(parameters)
-////						.with(csrf()))
-////				.andDo(print()).andReturn();
-//	}
+
 //	
 //	@Test
 //	@Order(11)
@@ -323,10 +303,10 @@ public class KimppakyytiApplicationTests {
 		.andExpect(jsonPath("$.numberOfElements", is(length)));
 	}
 	
-	private void checkDepartureAndArrival(int index, String departure, String arrival) throws Exception {
+	private void checkDepartureAndArrival(int rideIndex, String departure, String arrival) throws Exception {
 		mvcResultActions
-			.andExpect(jsonPath("$.content[" + index + "].departure").value(departure))
-			.andExpect(jsonPath("$.content[" + index + "].arrival").value(arrival));
+			.andExpect(jsonPath("$.content[" + rideIndex + "].departure").value(departure))
+			.andExpect(jsonPath("$.content[" + rideIndex + "].arrival").value(arrival));
 	}
 	
 	private static JSONObject createJsonRide(String origin, String destination,
@@ -346,9 +326,8 @@ public class KimppakyytiApplicationTests {
 		
 	}
 	
-	// suurin ongelma on, että käytettäessä tätä tapaa käyttäjätilin ei tarvitse olla olemassa
-	// jolloin mikä vaan tunnus kelpaa saattamaan post-pyynnön turvallisuuden läpi
-	private static RequestPostProcessor credentialsOf(Account user) {
-		return user(user.getNickName()).password(user.getPassword());
+	private static RequestPostProcessor luke() {
+		return user("Luke").password("password"); // käyttää koodattua salasanaa
+																	  // ei menisi läpi formLogin() kanssa
 	}
 }
