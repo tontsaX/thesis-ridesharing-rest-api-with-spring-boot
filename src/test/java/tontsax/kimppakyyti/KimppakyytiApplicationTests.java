@@ -3,6 +3,7 @@ package tontsax.kimppakyyti;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,6 +37,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import tontsax.kimppakyyti.dao.Account;
 import tontsax.kimppakyyti.dao.AccountDao;
@@ -53,6 +56,9 @@ public class KimppakyytiApplicationTests {
 	private static Account account1, account2;
 	private static String accountAddress = "/account";
 	private static String ridesAddress = "/rides";
+	
+	@Autowired
+	private WebApplicationContext context;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -101,6 +107,11 @@ public class KimppakyytiApplicationTests {
 			
 			databasePopulated = true;
 		}
+		
+		mockMvc = MockMvcBuilders
+				.webAppContextSetup(context)
+				.apply(springSecurity())
+				.build();
 	}
 	
 	@Test
@@ -325,6 +336,8 @@ public class KimppakyytiApplicationTests {
 		
 	}
 	
+	// suurin ongelma on, että käytettäessä tätä tapaa käyttäjätilin ei tarvitse olla olemassa
+	// jolloin mikä vaan tunnus kelpaa saattamaan post-pyynnön turvallisuuden läpi
 	private static RequestPostProcessor credentialsOf(Account user) {
 		return user(user.getNickName()).password(user.getPassword());
 	}
