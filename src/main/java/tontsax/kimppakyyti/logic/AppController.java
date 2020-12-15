@@ -1,5 +1,7 @@
 package tontsax.kimppakyyti.logic;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +95,25 @@ public class AppController {
 		}
 
 		return Ride.EMPTY;
+	}
+	
+	@PutMapping("/rides/{id}")
+	public List<Ride> addPassenger(@PathVariable Long id) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if(auth != null) {
+			Account passenger = accountDao.findByNickName(auth.getName());
+			Ride ride = rideDao.getOne(id);
+			
+			passenger.getReservedRides().add(ride);
+			accountDao.save(passenger);
+			ride.getPassengers().add(passenger);
+			rideDao.save(ride);
+			
+			return accountDao.getOne(passenger.getId()).getReservedRides();
+		}
+		
+		return Collections.emptyList();
 	}
 	
 	@DeleteMapping("/account/rides/{id}")

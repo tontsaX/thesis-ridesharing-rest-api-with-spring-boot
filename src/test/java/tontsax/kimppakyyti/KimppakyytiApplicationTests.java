@@ -250,13 +250,12 @@ public class KimppakyytiApplicationTests {
 						.user(newDriver.getString("nickName")).password(newDriver.getString("password")))
 			   .andExpect(authenticated().withUsername(newDriver.getString("nickName")));
 	}
-
-//	
-//	@Test
-//	@Order(11)
-//	public void hopOnARide() throws Exception {
-//		
-//	}
+	
+	@Test
+	@Order(11)
+	public void hopOnARide() throws Exception {
+		mockMvc.perform(put(ridesAddress + "/{id}", 5L).with(user("Tontsa").password("Salasana")).with(csrf())).andDo(print());
+	}
 //	
 //	@Test
 //	@Order(12)
