@@ -55,7 +55,7 @@ import tontsax.kimppakyyti.dao.RideDao;
 public class KimppakyytiApplicationTests {
 	
 	private static boolean databasePopulated = false;
-	private static Account account1/*, account2*/;
+	private static Account account1, account2;
 	private static String accountAddress = "/account";
 	private static String ridesAddress = "/rides";
 	
@@ -78,7 +78,7 @@ public class KimppakyytiApplicationTests {
 		if(!databasePopulated) {
 			
 			account1 = new Account();
-			Account account2 = new Account();
+			account2 = new Account();
 			
 			account1.setNickName("Tiberius");
 			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -260,13 +260,14 @@ public class KimppakyytiApplicationTests {
 			   .andExpect(jsonPath("$[0].passengers[0].nickName").value("Claudius"));
 		
 		mockMvc.perform(put(ridesAddress + "/{id}", 5L)
-						.with(user("Augustus")).with(csrf()))
+						.with(user(account2.getNickName())).with(csrf()))
 				.andReturn();
 		
+		//gets a ride by id and checks the passenger list
 		mockMvc.perform(get(ridesAddress + "/{id}", 5L))
 				.andDo(print())
 				.andExpect(jsonPath("$.passengers[0].nickName").value("Claudius"))
-				.andExpect(jsonPath("$.passengers[1].nickName").value("Augustus"));
+				.andExpect(jsonPath("$.passengers[1].nickName").value(account2.getNickName()));
 	}
 //	
 //	@Test
