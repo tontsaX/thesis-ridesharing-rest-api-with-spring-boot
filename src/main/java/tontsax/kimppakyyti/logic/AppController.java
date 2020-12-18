@@ -107,8 +107,6 @@ public class AppController {
 			
 			passenger.getReservedRides().add(ride);
 			accountDao.save(passenger);
-			ride.getPassengers().add(passenger);
-			rideDao.save(ride);
 			
 			return accountDao.getOne(passenger.getId()).getReservedRides();
 		}

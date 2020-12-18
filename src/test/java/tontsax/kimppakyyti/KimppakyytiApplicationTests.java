@@ -55,7 +55,7 @@ import tontsax.kimppakyyti.dao.RideDao;
 public class KimppakyytiApplicationTests {
 	
 	private static boolean databasePopulated = false;
-	private static Account account1, account2;
+	private static Account account1/*, account2*/;
 	private static String accountAddress = "/account";
 	private static String ridesAddress = "/rides";
 	
@@ -78,14 +78,14 @@ public class KimppakyytiApplicationTests {
 		if(!databasePopulated) {
 			
 			account1 = new Account();
-			account2 = new Account();
+			Account account2 = new Account();
 			
-			account1.setNickName("Decimus");
+			account1.setNickName("Tiberius");
 			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			account1.setPassword(passwordEncoder.encode("password"));
-			account2.setNickName("Tilemar");
-			
 			accountRepository.save(account1);
+			
+			account2.setNickName("Augustus");
 			accountRepository.save(account2);
 			
 			Ride ride1 = new Ride("Turku", "Helsinki", 10.0);
@@ -238,13 +238,11 @@ public class KimppakyytiApplicationTests {
 	@Order(9)
 	public void registerToApp() throws Exception {
 		JSONObject newDriver = new JSONObject();
-		newDriver.put("nickName", "Tontsa");
+		newDriver.put("nickName", "Claudius");
 		newDriver.put("password", "Salasana");
 		
-		performJsonRequestAndExpectJson(post("/register")
-								.with(csrf())
-								.content(newDriver.toString()))
-								.andReturn();
+		performJsonRequestAndExpectJson(post("/register").with(csrf()).content(newDriver.toString()))
+		.andReturn();
 		
 		mockMvc.perform(formLogin("/login")
 						.user(newDriver.getString("nickName")).password(newDriver.getString("password")))
@@ -254,7 +252,21 @@ public class KimppakyytiApplicationTests {
 	@Test
 	@Order(11)
 	public void hopOnARide() throws Exception {
-		mockMvc.perform(put(ridesAddress + "/{id}", 5L).with(user("Tontsa").password("Salasana")).with(csrf())).andDo(print());
+		//returns account's list of reserved rides. A ride contains a list of passengers.
+		mockMvc.perform(put(ridesAddress + "/{id}", 5L)
+						.with(user("Claudius")).with(csrf()))
+			   .andDo(print())
+			   .andExpect(jsonPath("$[0].id").value("5"))
+			   .andExpect(jsonPath("$[0].passengers[0].nickName").value("Claudius"));
+		
+		mockMvc.perform(put(ridesAddress + "/{id}", 5L)
+						.with(user("Augustus")).with(csrf()))
+				.andReturn();
+		
+		mockMvc.perform(get(ridesAddress + "/{id}", 5L))
+				.andDo(print())
+				.andExpect(jsonPath("$.passengers[0].nickName").value("Claudius"))
+				.andExpect(jsonPath("$.passengers[1].nickName").value("Augustus"));
 	}
 //	
 //	@Test
@@ -329,6 +341,6 @@ public class KimppakyytiApplicationTests {
 	}
 	
 	private static RequestPostProcessor testAccount() {
-		return user("Decimus").password("password");
+		return user(account1.getNickName()).password("password");
 	}
 }

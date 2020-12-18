@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -21,14 +23,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "registered", "reservedRides", "postedRides"})
 @Data
 public class Account extends AbstractPersistable<Long> {
 	public static Account EMPTY = new Account();
 
 	private String nickName;
 	private String password;
-	private int rankingFive;
+	private int ranking = 5;
 	private LocalDateTime registered = LocalDateTime.now();
 	
 	@ManyToMany
@@ -38,4 +40,10 @@ public class Account extends AbstractPersistable<Long> {
 	@OneToMany(mappedBy = "driver")
 	@JsonManagedReference
 	private List<Ride> postedRides = new ArrayList<>();
+	
+	public JSONObject simplified() throws JSONException {
+		return new JSONObject().put("id", this.getId())
+							   .put("nickName", this.nickName)
+							   .put("ranking", this.ranking);
+	}
 }

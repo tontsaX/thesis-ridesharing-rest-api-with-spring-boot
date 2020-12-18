@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -49,4 +51,14 @@ public class Ride extends AbstractPersistable<Long> {
 		this.destination = destination;
 		this.price = price;
 	}
+	
+	public List<JSONObject> simplifiedPassengers() throws JSONException {
+		List<JSONObject> simplePassengers = new ArrayList<>();
+		
+		for(Account passenger: this.passengers) {
+			simplePassengers.add(passenger.simplified());
+		}
+		
+		return simplePassengers;
+	} 
 }
