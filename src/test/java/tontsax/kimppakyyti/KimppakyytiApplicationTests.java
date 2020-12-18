@@ -269,12 +269,20 @@ public class KimppakyytiApplicationTests {
 				.andExpect(jsonPath("$.passengers[0].nickName").value("Claudius"))
 				.andExpect(jsonPath("$.passengers[1].nickName").value(account2.getNickName()));
 	}
-//	
-//	@Test
-//	@Order(12)
-//	public void cancelARide() throws Exception {
-//		
-//	}
+	
+	@Test
+	@Order(12)
+	public void cancelARide() throws Exception {
+		//removes the only ride from Claudius ride list and checks the length of the returned ride list
+		mockMvc.perform(put(ridesAddress + "/{id}/cancel", 5L)
+							.with(user("Claudius")).with(csrf()))
+				.andExpect(jsonPath("$.length()", is(0)));
+		
+		//gets a ride by id and checks the passenger list
+		mockMvc.perform(get(ridesAddress + "/{id}", 5L))
+				.andDo(print())
+				.andExpect(jsonPath("$.passengers[0].nickName").value(account2.getNickName()));
+	}
 	
 	private void addRidesToDatabase() throws Exception {
 		for(int i = 0; i < 12; i++) {

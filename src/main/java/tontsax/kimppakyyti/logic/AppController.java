@@ -114,6 +114,23 @@ public class AppController {
 		return Collections.emptyList();
 	}
 	
+	@PutMapping("/rides/{id}/cancel")
+	public List<Ride> cancelRide(@PathVariable Long id) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if(auth != null) {
+			Account passenger = accountDao.findByNickName(auth.getName());
+			Ride ride = rideDao.getOne(id);
+			
+			passenger.getReservedRides().remove(ride);
+			accountDao.save(passenger);
+			
+			return accountDao.getOne(passenger.getId()).getReservedRides();
+		}
+		
+		return Collections.emptyList();
+	}
+	
 	@DeleteMapping("/account/rides/{id}")
 	public Boolean deleteRide(@PathVariable Long id) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
