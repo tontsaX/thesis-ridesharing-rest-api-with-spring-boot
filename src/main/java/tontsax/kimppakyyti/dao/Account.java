@@ -34,11 +34,11 @@ public class Account extends AbstractPersistable<Long> {
 	private LocalDateTime registered = LocalDateTime.now();
 	
 	@ManyToMany
-	@JsonBackReference
+//	@JsonBackReference
 	private List<Ride> reservedRides = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "driver")
-	@JsonManagedReference
+//	@JsonManagedReference
 	private List<Ride> postedRides = new ArrayList<>();
 	
 	public JSONObject simplified() throws JSONException {
