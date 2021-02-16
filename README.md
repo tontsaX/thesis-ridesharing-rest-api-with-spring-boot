@@ -1,5 +1,7 @@
 # Thesis: Ridesharing REST API With Spring Boot
 
+[![CircleCI](https://app.circleci.com/pipelines/github/tontsaX/thesis-ridesharing-rest-api-with-spring-boot.svg?style=shield)](https://app.circleci.com/pipelines/github/tontsaX/thesis-ridesharing-rest-api-with-spring-boot)
+
 This project is a REST API for an imagenary ridesharing application and it is the practice part of my thesis. 
 <br>
 <br>
