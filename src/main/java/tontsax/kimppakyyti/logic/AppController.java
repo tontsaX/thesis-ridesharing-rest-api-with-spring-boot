@@ -19,7 +19,7 @@ import tontsax.kimppakyyti.services.AccountService;
 import tontsax.kimppakyyti.services.RideService;
 
 @RestController
-//@RequestMapping("/api") // lisää kaikkiin Mappingeihin alkuun osan /api
+//@RequestMapping("/api")
 public class AppController {;
 	
 	@Autowired
