@@ -43,8 +43,8 @@ public class AppController {
 	
 	
 	@GetMapping("/rides")
-	public Page<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
-		return rideDao.findAll(getNextPageOrderByDeparture(page));
+	public List<Ride> getRides(@RequestParam(defaultValue = "0") Integer page) {
+		return rideDao.findAll(getNextPageOrderByDeparture(page)).getContent();
 	}
 	
 	@GetMapping("/rides/from{origin}")

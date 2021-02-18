@@ -326,13 +326,13 @@ public class KimppakyytiApplicationTests {
 	
 	private void checkRidesListLength(int length) throws Exception {
 		mvcResultActions
-		.andExpect(jsonPath("$.numberOfElements", is(length)));
+			.andExpect(jsonPath("$.length()", is(length)));
 	}
 	
 	private void checkDepartureAndArrival(int rideIndex, String departure, String arrival) throws Exception {
 		mvcResultActions
-			.andExpect(jsonPath("$.content[" + rideIndex + "].departure").value(departure))
-			.andExpect(jsonPath("$.content[" + rideIndex + "].arrival").value(arrival));
+			.andExpect(jsonPath("$[" + rideIndex + "].departure").value(departure))
+			.andExpect(jsonPath("$[" + rideIndex + "].arrival").value(arrival));
 	}
 	
 	private static JSONObject createJsonRide(String origin, String destination,
