@@ -246,7 +246,8 @@ public class KimppakyytiApplicationTests {
 		
 		mockMvc.perform(formLogin("/login")
 						.user(newDriver.getString("nickName")).password(newDriver.getString("password")))
-			   .andExpect(authenticated().withUsername(newDriver.getString("nickName")));
+				.andDo(print())
+				.andExpect(authenticated().withUsername(newDriver.getString("nickName")));
 	}
 	
 	@Test

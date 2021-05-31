@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tontsax.kimppakyyti.dao.Account;
+import tontsax.kimppakyyti.dao.Conversation;
+import tontsax.kimppakyyti.dao.Message;
 import tontsax.kimppakyyti.dao.Ride;
 import tontsax.kimppakyyti.services.AccountService;
 import tontsax.kimppakyyti.services.RideService;
@@ -87,6 +89,26 @@ public class AppController {;
 	@PostMapping("/register")
 	public Account registerToApp(@RequestBody String accountJson) throws JSONException {
 		return accountService.registerToApp(accountJson);
+	}
+	
+	
+	@GetMapping("/account/conversations")
+	public List<Long> getMyConversations() {
+		return null;
+	}
+	
+	// there is now owner checks
+	// anyone who is logged in can get this conversation
+	@GetMapping("/account/conversations/{id}")
+	public Conversation getConversation(@PathVariable Long id) {
+		return accountService.getConversation(id);
+	}
+	
+	// there is now owner checks
+	// anyone who is logged in can get these conversations
+	@PostMapping("/account/conversations/{id}")
+	public Message sendMessage(@PathVariable Long id, @RequestBody Message message) {
+		return accountService.sendMessage(id, message);
 	}
 	
 }

@@ -67,7 +67,6 @@ public class RideServiceImp implements RideService {
 			newRide.setOrigin(receivedJson.getString("origin"));
 			newRide.setDestination(receivedJson.getString("destination"));
 			newRide.setPrice(receivedJson.getDouble("price"));
-//			newRide.setDriver(accountRepository.findByNickName(auth.getName()));
 			newRide.setDriver(accountService.getAccountByNickname(auth.getName()));
 			newRide.setDeparture(receivedJson.getString("departure"));
 			newRide.setArrival(receivedJson.getString("arrival"));
@@ -83,7 +82,6 @@ public class RideServiceImp implements RideService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if(auth != null) {
-//			Long accountId = accountRepository.findByNickName(auth.getName()).getId();
 			Long accountId = accountService.getAccountByNickname(auth.getName()).getId();
 			Ride updatedRide = rideRepository.getOne(id);
 			
@@ -108,15 +106,12 @@ public class RideServiceImp implements RideService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if(auth != null) {
-//			Account passenger = accountRepository.findByNickName(auth.getName());
 			Account passenger = accountService.getAccountByNickname(auth.getName());
 			Ride ride = rideRepository.getOne(id);
 			
 			passenger.getReservedRides().add(ride);
-//			accountRepository.save(passenger);
 			accountService.save(passenger);
 			
-//			return accountRepository.getOne(passenger.getId()).getReservedRides();
 			return accountService.getAccount(passenger.getId()).getReservedRides();
 		}
 		
@@ -128,15 +123,12 @@ public class RideServiceImp implements RideService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if(auth != null) {
-//			Account passenger = accountRepository.findByNickName(auth.getName());
 			Account passenger = accountService.getAccountByNickname(auth.getName());
 			Ride ride = rideRepository.getOne(id);
 			
 			passenger.getReservedRides().remove(ride);
-//			accountRepository.save(passenger);
 			accountService.save(passenger);
 			
-//			return accountRepository.getOne(passenger.getId()).getReservedRides();
 			return accountService.getAccount(passenger.getId()).getReservedRides();
 		}
 		
@@ -148,7 +140,6 @@ public class RideServiceImp implements RideService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if(auth != null) {
-//			Long accountId = accountRepository.findByNickName(auth.getName()).getId();
 			Long accountId = accountService.getAccountByNickname(auth.getName()).getId();
 			Ride deletedRide = rideRepository.getOne(id);
 			

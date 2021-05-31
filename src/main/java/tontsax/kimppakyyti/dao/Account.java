@@ -21,10 +21,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "registered", "reservedRides", "postedRides"})
-@Data
 public class Account extends AbstractPersistable<Long> {
 	public static Account EMPTY = new Account();
 
@@ -40,6 +40,9 @@ public class Account extends AbstractPersistable<Long> {
 	@OneToMany(mappedBy = "driver")
 //	@JsonManagedReference
 	private List<Ride> postedRides = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "owner")
+	private List<Conversation> conversations = new ArrayList<>();
 	
 	public JSONObject simplified() throws JSONException {
 		return new JSONObject().put("id", this.getId())
