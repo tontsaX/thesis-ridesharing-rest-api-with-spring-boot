@@ -1,5 +1,7 @@
 package tontsax.kimppakyyti.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,6 @@ public class ConversationServiceImp implements ConversationService {
 
 	@Override
 	public Conversation getConversation(Account owner, Account receiver) {
-//		return conversationRepository.findByOwnerAndReceiver(owner, receiver);
 		return null;
 	}
 
@@ -41,20 +42,20 @@ public class ConversationServiceImp implements ConversationService {
 
 	@Override
 	public Message save(Conversation conversation, Message message) {
-//		conversation = conversationRepository.save(conversation);
-		
 		message.setConversation(conversation);
 		message = messageRepository.save(message);
 		
-		System.out.println("CONV ID: " + conversation.getId());
-		System.out.println("MESSAGE ID: " + message.getId());
-		System.out.println("MESSAGE: " + message);
-		
-//		conversation.getMessages().add(messageRepository.save(message));
-		
-//		conversationRepository.save(conversation);
-		
 		return message;
+	}
+
+	@Override
+	public List<Conversation> getConversations(Account owner) {
+		return conversationRepository.findByOwner(owner);
+	}
+
+	@Override
+	public Conversation getConversation(Long id, Account owner) {
+		return conversationRepository.findByIdAndOwner(id, owner);
 	}
 
 }

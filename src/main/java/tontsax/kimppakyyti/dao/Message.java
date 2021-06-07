@@ -27,7 +27,6 @@ public class Message extends AbstractPersistable<Long> {
 	
 	@ManyToOne
 	@JoinColumn(name = "conversation_id")
-//	@JsonIgnoreProperties({"owner", "messages"})
 	private Conversation conversation;
 	
 	private String sender;

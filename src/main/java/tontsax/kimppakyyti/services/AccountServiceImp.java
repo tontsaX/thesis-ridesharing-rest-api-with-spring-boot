@@ -59,13 +59,10 @@ public class AccountServiceImp implements AccountService {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();	
 		
-//		Conversation conversation = conversationService.getConversation(id);
-		
 		Conversation conversation;
 			
 		if(conversationId == 0) {
 			Account owner = accountRepository.findByNickName(auth.getName());
-//			Account receiver = accountRepository.findByNickName(message.getReceiver());
 			
 			conversation = new Conversation();
 			conversation.setOwner(owner);
@@ -75,30 +72,22 @@ public class AccountServiceImp implements AccountService {
 		}
 		
 		message.setConversation(conversation);
-			
-//		return conversationService.save(conversation, message);
+		
 		return conversationService.save(message);
 	}
 
 	@Override
 	public Conversation getConversation(Long conversationId) {
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		
-//		Account user = accountRepository.findByNickName(auth.getName());
-//		Account receiver = accountRepository.findByNickName(receiverNickName);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
-//		Conversation conversation = null;
-//
-//		if(user != null && receiver != null) {
-//			conversation = conversationService.getConversation(user, receiver);
-//		} 
-//		
-//		if(conversation != null) {
-//			return conversation;
-//		} else {
-//			return Conversation.EMPTY;
-//		}
-		return conversationService.getConversation(conversationId);
+		Account user = accountRepository.findByNickName(auth.getName());
+		Conversation conversation = conversationService.getConversation(conversationId, user);
+		
+		if(conversation != null) {
+			return conversation;
+		}
+		
+		return Conversation.EMPTY;
 	}
 
 }
