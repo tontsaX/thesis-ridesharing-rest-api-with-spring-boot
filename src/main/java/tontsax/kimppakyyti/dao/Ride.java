@@ -35,7 +35,6 @@ public class Ride extends AbstractPersistable<Long> {
 	private String departure, arrival;
 	
 	@ManyToOne
-//	@JsonBackReference
 	private Account driver;
 	
 	@ManyToMany(mappedBy = "reservedRides")

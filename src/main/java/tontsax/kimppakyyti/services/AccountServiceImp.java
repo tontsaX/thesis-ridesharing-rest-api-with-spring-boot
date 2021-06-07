@@ -73,7 +73,6 @@ public class AccountServiceImp implements AccountService {
 			
 		if(conversation == null) {
 			conversation = new Conversation();
-			conversation.setOwner(sender);
 			conversation.setOwners(conversationOwners);
 			
 			conversationService.save(conversation);

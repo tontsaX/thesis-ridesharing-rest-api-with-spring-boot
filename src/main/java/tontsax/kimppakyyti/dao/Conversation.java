@@ -24,11 +24,6 @@ import lombok.NoArgsConstructor;
 public class Conversation extends AbstractPersistable<Long> {
 	public static Conversation EMPTY = new Conversation();
 	
-	@ManyToOne
-//	@JoinColumn(name = "owner_id")
-	@JsonIgnoreProperties({"password", "ranking", "registered", "reservedRides", "postedRides", "conversations"})
-	private Account owner;
-	
 	@ManyToMany
 	@JsonIgnoreProperties({"password", "ranking", "registered", "reservedRides", "postedRides", "conversations"})
 	private List<Account> owners = new ArrayList<>();

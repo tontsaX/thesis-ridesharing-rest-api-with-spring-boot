@@ -30,11 +30,6 @@ public class ConversationServiceImp implements ConversationService {
 	}
 
 	@Override
-	public Conversation getConversation(Account owner, Account receiver) {
-		return null;
-	}
-
-	@Override
 	public Conversation save(Conversation conversation) {
 		return conversationRepository.save(conversation);
 	}
@@ -50,16 +45,6 @@ public class ConversationServiceImp implements ConversationService {
 		message = messageRepository.save(message);
 		
 		return message;
-	}
-
-	@Override
-	public List<Conversation> getConversations(Account owner) {
-		return conversationRepository.findByOwner(owner);
-	}
-
-	@Override
-	public Conversation getConversation(Long id, Account owner) {
-		return conversationRepository.findByIdAndOwner(id, owner);
 	}
 
 	@Override
