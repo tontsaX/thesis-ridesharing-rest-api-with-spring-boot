@@ -1,5 +1,8 @@
 package tontsax.kimppakyyti.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -59,16 +62,23 @@ public class AccountServiceImp implements AccountService {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();	
 		
-		Conversation conversation;
+		Account sender = accountRepository.findByNickName(auth.getName());
+		Account receiver = accountRepository.findByNickName(message.getReceiver());
+		
+		List<Account> conversationOwners = new ArrayList<>();
+		conversationOwners.add(sender);
+		conversationOwners.add(receiver);
+		
+		Conversation conversation = conversationService.getConversation(conversationId);
 			
-		if(conversationId == 0) {
-			Account owner = accountRepository.findByNickName(auth.getName());
-			
+		if(conversation == null) {
 			conversation = new Conversation();
-			conversation.setOwner(owner);
+			conversation.setOwner(sender);
+			conversation.setOwners(conversationOwners);
+			
 			conversationService.save(conversation);
 		} else {
-			conversation = conversationService.getConversation(conversationId);
+			conversation = conversationService.getConversation(conversationId, conversationOwners);
 		}
 		
 		message.setConversation(conversation);
@@ -81,7 +91,10 @@ public class AccountServiceImp implements AccountService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		Account user = accountRepository.findByNickName(auth.getName());
-		Conversation conversation = conversationService.getConversation(conversationId, user);
+		List<Account> conversationOwners = new ArrayList<>();
+		conversationOwners.add(user);
+		
+		Conversation conversation = conversationService.getConversation(conversationId, conversationOwners);
 		
 		if(conversation != null) {
 			return conversation;

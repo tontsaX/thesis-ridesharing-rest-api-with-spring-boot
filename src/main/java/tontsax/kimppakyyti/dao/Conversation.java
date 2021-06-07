@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -28,9 +29,9 @@ public class Conversation extends AbstractPersistable<Long> {
 	@JsonIgnoreProperties({"password", "ranking", "registered", "reservedRides", "postedRides", "conversations"})
 	private Account owner;
 	
-//	@OneToOne
-//	@JoinColumn(name = "receiver_id")
-//	private Account receiver;
+	@ManyToMany
+	@JsonIgnoreProperties({"password", "ranking", "registered", "reservedRides", "postedRides", "conversations"})
+	private List<Account> owners = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "conversation")
 	@JsonIgnoreProperties({"conversation"})

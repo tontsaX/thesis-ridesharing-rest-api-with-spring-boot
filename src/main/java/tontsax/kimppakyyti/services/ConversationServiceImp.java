@@ -22,7 +22,11 @@ public class ConversationServiceImp implements ConversationService {
 
 	@Override
 	public Conversation getConversation(Long id) {
-		return conversationRepository.findById(id).get();
+		try {
+			return conversationRepository.findById(id).get();
+		} catch(Exception e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -56,6 +60,11 @@ public class ConversationServiceImp implements ConversationService {
 	@Override
 	public Conversation getConversation(Long id, Account owner) {
 		return conversationRepository.findByIdAndOwner(id, owner);
+	}
+
+	@Override
+	public Conversation getConversation(Long id, List<Account> owners) {
+		return conversationRepository.findByIdAndOwnersIn(id, owners);
 	}
 
 }
