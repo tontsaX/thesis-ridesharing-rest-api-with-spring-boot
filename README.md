@@ -10,4 +10,3 @@ I came in the conclusion that programming a REST API and writing about the proce
 than trying to write about two separate applications.
 <br>
 <br>
-I'll write entirely separate demo application, that uses API made in this project, later.
