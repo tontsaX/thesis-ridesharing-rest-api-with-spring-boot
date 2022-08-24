@@ -9,4 +9,6 @@ The original idea was to create a REST service and a mobile app as my thesis, bu
 I came in the conclusion that programming a REST API and writing about the process, tests, useage and science behind the service can be tied easier together
 than trying to write about two separate applications.
 <br>
+
+[My thesis in finnish.](https://urn.fi/URN:NBN:fi:amk-2021121626472)
 <br>
